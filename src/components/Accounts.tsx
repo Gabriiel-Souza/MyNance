@@ -1,165 +1,137 @@
-import { Plus, CreditCard, Wallet, Landmark } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { Wallet, CreditCard, Landmark, Plus } from 'lucide-react';
 
 export function Accounts() {
-  const { accounts } = useFinanceStore();
+  const { accounts, transactions } = useFinanceStore();
 
-  const creditCards = accounts.filter(a => a.type === 'CREDIT');
-  const bankAccounts = accounts.filter(a => a.type === 'DEBIT');
-  const cashAccounts = accounts.filter(a => a.type === 'CASH');
+  const getAccountBalance = (accountId: string) => {
+    const account = accounts.find(a => a.id === accountId);
+    if (!account) return 0;
+    
+    // Calcula o saldo somando as transações à conta base
+    const txSum = transactions.reduce((acc, tx) => {
+      // Se a conta for a de origem
+      if (tx.accountId === accountId) {
+        return acc + tx.amount;
+      }
+      // Se for uma transferência e for a conta de destino
+      if (tx.type === 'TRANSFER' && tx.destinationAccountId === accountId) {
+        return acc + Math.abs(tx.amount);
+      }
+      return acc;
+    }, 0);
+
+    return account.balance + txSum;
+  };
+
+  const totalBalance = accounts.reduce((sum, acc) => sum + getAccountBalance(acc.id), 0);
+  const totalLimitAvailable = accounts
+    .filter(a => a.type === 'CREDIT' && a.limit)
+    .reduce((sum, acc) => sum + (acc.limit || 0) + getAccountBalance(acc.id), 0);
 
   return (
     <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white">
-      <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+      <header className="mb-10 flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Suas Contas</h2>
-          <p className="text-gray-400 mt-1">Gerencie saldos e faturas ativas</p>
+          <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Minhas Contas</h2>
+          <p className="text-gray-400 mt-1">Gestão de cartões, bancos e dinheiro físico</p>
         </div>
-        
-        <button className="flex items-center gap-2 bg-surface-container-high hover:bg-surface-container-highest px-4 py-2 rounded-xl transition-colors font-medium">
-          <Plus size={18} />
-          <span>Nova Conta</span>
-        </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Lado Esquerdo: Dinheiro e Corrente */}
-        <div className="flex flex-col gap-8">
+      {/* Resumo Geral com Glassmorphism */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="relative overflow-hidden bg-surface-container-low rounded-3xl p-8 shadow-2xl">
+          {/* Neon Glow effect */}
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />
           
-          <section>
-            <h3 className="text-xl font-bold mb-4 tracking-wide flex items-center gap-2">
-              <Wallet className="text-primary" size={24} />
-              Minha Carteira
-            </h3>
-            {cashAccounts.length === 0 ? (
-              <p className="text-gray-500">Nenhum registro de dinheiro em espécie.</p>
-            ) : (
-              cashAccounts.map(account => (
-                <div key={account.id} className="bg-surface-container-low p-6 rounded-3xl flex justify-between items-center transition-all hover:bg-surface-container-high cursor-pointer shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-1">{account.name}</h4>
-                    <p className="text-sm text-gray-400">Dinheiro Físico</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-primary" style={{ fontFamily: 'var(--font-jakarta)'}}>
-                      R$ {account.balance.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </section>
-
-          <section>
-            <h3 className="text-xl font-bold mb-4 tracking-wide flex items-center gap-2">
-              <Landmark className="text-secondary" size={24} />
-              Contas Bancárias
-            </h3>
-            <div className="flex flex-col gap-4">
-              {bankAccounts.length === 0 ? (
-                <div className="bg-surface-container-lowest p-6 rounded-3xl border border-surface-container-high border-dashed text-center">
-                  <p className="text-gray-500">Nenhuma conta corrente cadastrada.</p>
-                </div>
-              ) : (
-                bankAccounts.map(account => (
-                  <div key={account.id} className="bg-surface-container-low p-6 rounded-3xl flex justify-between items-center transition-all hover:bg-surface-container-high cursor-pointer shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
-                        <Landmark size={20} className="text-white" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-white">{account.name}</h4>
-                        <p className="text-sm text-gray-400">Saldo Disponível</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>
-                        R$ {account.balance.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
+          <h3 className="text-gray-400 text-sm font-medium mb-2 tracking-wide">Patrimônio Líquido Total</h3>
+          <p className="text-5xl font-bold tracking-tight text-white mb-2" style={{ fontFamily: 'var(--font-jakarta)' }}>
+            R$ {totalBalance.toFixed(2)}
+          </p>
+          <div className="flex items-center gap-2 text-primary font-medium text-sm">
+            <Plus size={16} /> 1.2% este mês
+          </div>
         </div>
 
-        {/* Lado Direito: Cartões de Crédito */}
-        <div className="flex flex-col gap-8">
-          <section>
-            <h3 className="text-xl font-bold mb-4 tracking-wide flex items-center gap-2">
-              <CreditCard className="text-tertiary" size={24} />
-              Cartões de Crédito
-            </h3>
-            
-            <div className="flex flex-col gap-6">
-              {creditCards.length === 0 ? (
-                <p className="text-gray-500">Nenhum cartão de crédito cadastrado.</p>
-              ) : (
-                creditCards.map(account => {
-                  const used = Math.abs(account.balance);
-                  const limit = account.limit || 0;
-                  const available = limit - used;
-                  const progress = limit > 0 ? (used / limit) * 100 : 0;
-                  
-                  return (
-                    <div key={account.id} className="relative bg-surface-container-low rounded-3xl p-6 overflow-hidden transition-all hover:bg-surface-container-high cursor-pointer shadow-[0_4px_32px_rgba(0,0,0,0.3)] group">
-                      
-                      {/* Glow de fundo (Glassmorphism highlight) */}
-                      <div className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full blur-3xl transform translate-x-10 -translate-y-10 group-hover:opacity-20 transition-opacity" style={{ backgroundColor: account.color || '#ff7765' }} />
-
-                      <div className="flex justify-between items-start mb-6 z-10 relative">
-                        <div>
-                          <h4 className="text-xl font-bold text-white mb-1" style={{ fontFamily: 'var(--font-jakarta)'}}>{account.name}</h4>
-                          <p className="text-sm text-gray-400">Limite Disp: <span className="text-white font-medium">R$ {available.toFixed(2)}</span></p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-400 mb-1">Fatura Atual</p>
-                          <p className="text-3xl font-bold text-tertiary" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {used.toFixed(2)}</p>
-                        </div>
-                      </div>
-
-                      {/* Barra de Progresso */}
-                      <div className="relative z-10 mb-6">
-                        <div className="flex justify-between text-xs text-gray-400 mb-2 font-medium">
-                          <span>0%</span>
-                          <span>{progress.toFixed(0)}% Utilizado</span>
-                        </div>
-                        <div className="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
-                          <div 
-                            className="h-full rounded-full" 
-                            style={{ 
-                              width: `${progress}%`,
-                              background: `linear-gradient(90deg, ${account.color || '#ff7765'}EE 0%, ${account.color || '#ff7765'} 100%)`
-                            }} 
-                          />
-                        </div>
-                      </div>
-
-                      {/* Régua de Fechamento / Vencimento */}
-                      <div className="relative z-10 bg-surface-container-highest rounded-2xl p-4 flex justify-between items-center">
-                        <div>
-                          <p className="text-xs text-gray-400 mb-1">Fechamento</p>
-                          <p className="text-sm font-bold text-white">Dia 25</p>
-                        </div>
-                        <div className="w-px h-8 bg-surface-variant" />
-                        <div className="text-right">
-                          <p className="text-xs text-gray-400 mb-1">Vencimento</p>
-                          <p className="text-sm font-bold text-white">Dia 05</p>
-                        </div>
-                      </div>
-
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </section>
+        <div className="relative overflow-hidden bg-surface-container-low/60 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl">
+          <h3 className="text-gray-400 text-sm font-medium mb-2 tracking-wide">Limite de Crédito Disponível</h3>
+          <p className="text-5xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)' }}>
+            R$ {totalLimitAvailable.toFixed(2)}
+          </p>
+          <p className="text-gray-500 text-sm mt-2">Somado entre todos os seus cartões</p>
         </div>
-
       </div>
+
+      <h3 className="text-xl font-bold mb-6 tracking-wide ml-2">Suas Carteiras</h3>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+        {accounts.map(acc => {
+          const balance = getAccountBalance(acc.id);
+          const isCredit = acc.type === 'CREDIT';
+          const usagePercent = isCredit && acc.limit ? Math.min(Math.abs(balance) / acc.limit * 100, 100) : 0;
+
+          return (
+            <div 
+              key={acc.id}
+              className="bg-surface-container-high rounded-3xl p-6 flex flex-col justify-between min-h-[220px] transition-transform hover:scale-[1.02] cursor-pointer group"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center gap-4">
+                  <div 
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center bg-surface-container-highest shadow-inner"
+                    style={{ color: acc.color }}
+                  >
+                    {acc.type === 'CASH' ? <Wallet size={24} /> : isCredit ? <CreditCard size={24} /> : <Landmark size={24} />}
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg">{acc.name}</p>
+                    <p className="text-xs text-gray-500 font-medium tracking-widest uppercase">{acc.type}</p>
+                  </div>
+                </div>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: acc.color, boxShadow: `0 0 10px ${acc.color}` }} />
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1 font-medium italic">Saldo atual</p>
+                <p className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                  R$ {balance.toFixed(2)}
+                </p>
+                
+                {isCredit && acc.limit && (
+                  <div className="mt-6">
+                    <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-tighter">
+                      <span>Uso do Limite</span>
+                      <span>R$ {acc.limit.toFixed(0)} totais</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{ 
+                          width: `${usagePercent}%`, 
+                          backgroundColor: acc.color,
+                          boxShadow: `0 0 8px ${acc.color}80`
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Adicionar nova conta (Placeholder/Botão) */}
+        <button className="border-2 border-dashed border-surface-container-highest rounded-3xl p-6 flex flex-col items-center justify-center min-h-[220px] hover:border-primary/40 hover:bg-primary/5 transition-all group">
+          <div className="w-12 h-12 rounded-full border-2 border-dashed border-surface-container-highest flex items-center justify-center text-gray-500 group-hover:bg-primary group-hover:text-background group-hover:border-transparent transition-all mb-4">
+            <Plus size={24} />
+          </div>
+          <p className="font-bold text-gray-500 group-hover:text-white transition-colors">Nova Conta</p>
+        </button>
+      </div>
+
+      <button className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_30px_rgba(107,254,156,0.3)] flex items-center justify-center hover:scale-105 hover:rotate-90 transition-all duration-300 z-40">
+        <Plus size={32} />
+      </button>
     </div>
   );
 }
