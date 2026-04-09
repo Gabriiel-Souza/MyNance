@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Transaction, Account, Category } from '../types';
+import type { Transaction, Account, Category } from '../types';
 
 interface FinanceState {
   transactions: Transaction[];

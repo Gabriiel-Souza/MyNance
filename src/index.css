@@ -22,4 +22,10 @@
     color: white;
     font-family: var(--font-inter);
   }
+  
+  button, 
+  [role="button"],
+  a {
+    cursor: pointer;
+  }
 }

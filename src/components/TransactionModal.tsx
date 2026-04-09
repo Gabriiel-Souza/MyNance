@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
-import { TransactionType } from '../types';
+import type { TransactionType } from '../types';
 
 interface ModalProps {
   isOpen: boolean;
