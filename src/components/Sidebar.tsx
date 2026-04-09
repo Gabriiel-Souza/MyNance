@@ -1,4 +1,4 @@
-import { Home, CreditCard, PieChart, Settings, Wallet } from 'lucide-react';
+import { Home, CreditCard, PieChart, Settings, Wallet, Tag } from 'lucide-react';
 
 interface SidebarProps {
   activePage: string;
@@ -10,6 +10,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
     { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} /> },
     { id: 'transactions', label: 'Transações', icon: <Wallet size={20} /> },
     { id: 'accounts', label: 'Contas', icon: <CreditCard size={20} /> },
+    { id: 'categories', label: 'Categorias', icon: <Tag size={20} /> },
     { id: 'goals', label: 'Metas', icon: <PieChart size={20} /> },
   ];
 

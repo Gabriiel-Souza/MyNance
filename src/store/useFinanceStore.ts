@@ -12,6 +12,8 @@ interface FinanceState {
   removeTransaction: (id: string) => void;
   addAccount: (account: Omit<Account, 'id'>) => void;
   addCategory: (category: Omit<Category, 'id'>) => void;
+  updateCategory: (id: string, category: Partial<Omit<Category, 'id'>>) => void;
+  deleteCategory: (id: string) => void;
 }
 
 // Valores iniciais para simular a Dashboard
@@ -48,6 +50,16 @@ export const useFinanceStore = create<FinanceState>()(
 
       addCategory: (cat) => set((state) => ({
         categories: [...state.categories, { ...cat, id: crypto.randomUUID() }]
+      })),
+
+      updateCategory: (id, cat) => set((state) => ({
+        categories: state.categories.map(c => c.id === id ? { ...c, ...cat } : c)
+      })),
+
+      deleteCategory: (id) => set((state) => ({
+        categories: state.categories.filter(c => c.id !== id),
+        // Opcional: Limpar referências nas transações (vincular a "Sem Categoria" ou ID vazio)
+        transactions: state.transactions.map(t => t.categoryId === id ? { ...t, categoryId: '' } : t)
       }))
     }),
     {
