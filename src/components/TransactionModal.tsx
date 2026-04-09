@@ -14,6 +14,8 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
   const [amount, setAmount] = useState('');
   const [desc, setDesc] = useState('');
   const [categoryId, setCategoryId] = useState(categories[0]?.id || '');
+  const [sourceAccountId, setSourceAccountId] = useState(accounts[0]?.id || '');
+  const [destinationAccountId, setDestinationAccountId] = useState(accounts[1]?.id || '');
 
   if (!isOpen) return null;
 
@@ -26,8 +28,9 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
       amount: type === 'OUT' ? -Number(amount) : Number(amount),
       date: new Date().toISOString().split('T')[0], // yyyy-mm-dd
       type,
-      categoryId,
-      accountId: accounts[0]?.id || '', // default to first account
+      categoryId: type === 'TRANSFER' ? '' : categoryId,
+      accountId: type === 'TRANSFER' ? sourceAccountId : accounts[0]?.id || '',
+      destinationAccountId: type === 'TRANSFER' ? destinationAccountId : undefined,
       isRecurring: false
     });
     
@@ -61,15 +64,21 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
         <div className="flex gap-2 mb-6 bg-surface-container-low p-1 rounded-xl">
           <button
             onClick={() => setType('OUT')}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${type === 'OUT' ? 'bg-tertiary text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 py-1 px-2 text-sm font-bold rounded-lg transition-colors ${type === 'OUT' ? 'bg-tertiary text-white shadow-md' : 'text-gray-400 hover:text-white'}`}
           >
             Despesa
           </button>
           <button
             onClick={() => setType('IN')}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${type === 'IN' ? 'bg-primary text-[#003417] shadow-md' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 py-1 px-2 text-sm font-bold rounded-lg transition-colors ${type === 'IN' ? 'bg-primary text-[#003417] shadow-md' : 'text-gray-400 hover:text-white'}`}
           >
             Receita
+          </button>
+          <button
+            onClick={() => setType('TRANSFER')}
+            className={`flex-1 py-1 px-2 text-sm font-bold rounded-lg transition-colors ${type === 'TRANSFER' ? 'bg-secondary text-background shadow-md' : 'text-gray-400 hover:text-white'}`}
+          >
+            Transf.
           </button>
         </div>
 
@@ -98,30 +107,57 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Categoria</label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map(cat => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryId(cat.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
-                    categoryId === cat.id 
-                      ? 'border-transparent text-black shadow-md' 
-                      : 'border-surface-container-high text-gray-300 hover:bg-surface-container-low'
-                  }`}
-                  style={{ 
-                    backgroundColor: categoryId === cat.id ? cat.color : 'transparent',
-                    opacity: categoryId === cat.id ? 1 : 0.8
-                  }}
-                >
-                  {categoryId === cat.id && <Check size={14} className="inline mr-1" />}
-                  {cat.label}
-                </button>
-              ))}
+          {type !== 'TRANSFER' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Categoria</label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryId(cat.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
+                      categoryId === cat.id 
+                        ? 'border-transparent text-black shadow-md' 
+                        : 'border-surface-container-high text-gray-300 hover:bg-surface-container-low'
+                    }`}
+                    style={{ 
+                      backgroundColor: categoryId === cat.id ? cat.color : 'transparent',
+                      opacity: categoryId === cat.id ? 1 : 0.8
+                    }}
+                  >
+                    {categoryId === cat.id && <Check size={14} className="inline mr-1" />}
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {type === 'TRANSFER' && (
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Conta de Origem</label>
+                <select 
+                  value={sourceAccountId}
+                  onChange={e => setSourceAccountId(e.target.value)}
+                  className="w-full bg-background border border-surface-container-highest rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                >
+                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Destino</label>
+                <select 
+                  value={destinationAccountId}
+                  onChange={e => setDestinationAccountId(e.target.value)}
+                  className="w-full bg-background border border-surface-container-highest rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                >
+                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
 
           <button 
             type="submit"

@@ -1,4 +1,4 @@
-export type TransactionType = 'IN' | 'OUT';
+export type TransactionType = 'IN' | 'OUT' | 'TRANSFER';
 
 export interface Transaction {
   id: string;
@@ -6,8 +6,9 @@ export interface Transaction {
   amount: number;
   date: string; // ISO date string
   type: TransactionType;
-  categoryId: string;
-  accountId: string;
+  categoryId: string; // Pode ser vazio para transferências
+  accountId: string;  // Conta de origem
+  destinationAccountId?: string; // Conta de destino (apenas para type TRANSFER)
   isRecurring: boolean;
 }
 

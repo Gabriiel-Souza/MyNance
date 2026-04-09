@@ -17,7 +17,8 @@ export function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredTransactions = transactions.filter(tx => 
-    tx.description.toLowerCase().includes(searchTerm.toLowerCase())
+    tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    Math.abs(tx.amount).toString().includes(searchTerm)
   );
 
   // Agrupar por data (simplificado para exemplo)
