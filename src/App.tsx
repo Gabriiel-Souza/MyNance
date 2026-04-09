@@ -4,6 +4,7 @@ import { Dashboard } from './components/Dashboard'
 import { Transactions } from './components/Transactions'
 import { Accounts } from './components/Accounts'
 import { Categories } from './components/Categories'
+import { Goals } from './components/Goals'
 
 function App() {
   const [activePage, setActivePage] = useState('dashboard');
@@ -15,12 +16,7 @@ function App() {
       {activePage === 'transactions' && <Transactions />}
       {activePage === 'accounts' && <Accounts />}
       {activePage === 'categories' && <Categories />}
-      {/* Futuro: Metas */}
-      {['goals'].includes(activePage) && (
-        <div className="flex-1 p-8 ml-64 min-h-screen flex items-center justify-center text-gray-500">
-          Página em construção
-        </div>
-      )}
+      {activePage === 'goals' && <Goals />}
     </div>
   )
 }

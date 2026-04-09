@@ -35,3 +35,13 @@ export interface Installment {
   currentNumber: number;
   totalNumber: number;
 }
+
+export interface Goal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline: string; // ISO date string
+  categoryId?: string; // Optional filter
+  color: string;
+}
