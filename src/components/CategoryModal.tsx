@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Check, Utensils, Car, ShoppingBag, CreditCard, Wallet, Heart, Gamepad2, Home, Zap, Coffee } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
-import { Category } from '../types';
+import type { Category } from '../types';
 
 interface ModalProps {
   isOpen: boolean;
@@ -31,6 +31,7 @@ export function CategoryModal({ isOpen, onClose, editCategory }: ModalProps) {
   const [label, setLabel] = useState('');
   const [color, setColor] = useState(PRESET_COLORS[0]);
   const [icon, setIcon] = useState('Wallet');
+  const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
     if (editCategory) {
@@ -46,9 +47,14 @@ export function CategoryModal({ isOpen, onClose, editCategory }: ModalProps) {
 
   if (!isOpen) return null;
 
+  const isFormValid = label.trim().length > 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!label) return;
+    if (!isFormValid) {
+      triggerShake();
+      return;
+    }
 
     if (editCategory) {
       updateCategory(editCategory.id, { label, color, icon });
@@ -57,6 +63,11 @@ export function CategoryModal({ isOpen, onClose, editCategory }: ModalProps) {
     }
     
     onClose();
+  };
+
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 400);
   };
 
   return (
@@ -120,7 +131,8 @@ export function CategoryModal({ isOpen, onClose, editCategory }: ModalProps) {
 
           <button 
             type="submit"
-            className="mt-4 w-full bg-primary text-background px-4 py-4 font-black rounded-2xl shadow-[0_0_25px_rgba(107,254,156,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg uppercase tracking-tight"
+            onClick={!isFormValid ? triggerShake : undefined}
+            className={`mt-4 w-full bg-primary text-background px-4 py-4 font-black rounded-2xl shadow-[0_0_25px_rgba(107,254,156,0.2)] transition-all text-lg uppercase tracking-tight ${!isFormValid ? 'disabled-glow' : 'hover:scale-[1.02] active:scale-[0.98]'} ${isShaking ? 'animate-shake' : ''}`}
           >
             {editCategory ? 'Salvar Alterações' : 'Criar Categoria'}
           </button>

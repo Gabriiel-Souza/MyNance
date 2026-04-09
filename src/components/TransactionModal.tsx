@@ -16,12 +16,33 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
   const [categoryId, setCategoryId] = useState(categories[0]?.id || '');
   const [sourceAccountId, setSourceAccountId] = useState(accounts[0]?.id || '');
   const [destinationAccountId, setDestinationAccountId] = useState(accounts[1]?.id || '');
+  const [isShaking, setIsShaking] = useState(false);
 
   if (!isOpen) return null;
 
+  // Validação do Formulário
+  const isFormValid = () => {
+    if (!amount || Number(amount) <= 0) return false;
+    if (!desc.trim()) return false;
+    
+    if (type === 'TRANSFER') {
+      return sourceAccountId !== destinationAccountId && sourceAccountId !== '' && destinationAccountId !== '';
+    } else {
+      return categoryId !== '';
+    }
+  };
+
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 400);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !desc) return;
+    if (!isFormValid()) {
+      triggerShake();
+      return;
+    }
 
     addTransaction({
       description: desc,
@@ -39,6 +60,8 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
     setDesc('');
     onClose();
   };
+
+  const valid = isFormValid();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -141,7 +164,7 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
                 <select 
                   value={sourceAccountId}
                   onChange={e => setSourceAccountId(e.target.value)}
-                  className="w-full bg-background border border-surface-container-highest rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                  className={`w-full bg-background border rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer ${sourceAccountId === destinationAccountId ? 'border-tertiary/50 text-tertiary' : 'border-surface-container-highest'}`}
                 >
                   {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
                 </select>
@@ -151,7 +174,7 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
                 <select 
                   value={destinationAccountId}
                   onChange={e => setDestinationAccountId(e.target.value)}
-                  className="w-full bg-background border border-surface-container-highest rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                  className={`w-full bg-background border rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer ${sourceAccountId === destinationAccountId ? 'border-tertiary/50 text-tertiary' : 'border-surface-container-highest'}`}
                 >
                   {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
                 </select>
@@ -159,9 +182,14 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
             </div>
           )}
 
+          {type === 'TRANSFER' && sourceAccountId === destinationAccountId && (
+            <p className="text-tertiary text-[10px] font-bold uppercase tracking-widest text-center">As contas devem ser diferentes</p>
+          )}
+
           <button 
             type="submit"
-            className="mt-4 w-full bg-primary text-background px-4 py-4 font-bold rounded-xl shadow-[0_0_15px_rgba(107,254,156,0.3)] hover:scale-[1.02] transition-transform text-lg"
+            onClick={!valid ? triggerShake : undefined}
+            className={`mt-4 w-full bg-primary text-background px-4 py-4 font-bold rounded-xl transition-all text-lg ${!valid ? 'disabled-glow shadow-none' : 'shadow-[0_0_15px_rgba(107,254,156,0.3)] hover:scale-[1.02]'} ${isShaking ? 'animate-shake' : ''}`}
           >
             Confirmar
           </button>
