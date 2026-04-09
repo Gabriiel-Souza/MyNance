@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { Utensils, Car, ShoppingBag, CreditCard, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Utensils, Car, ShoppingBag, CreditCard, Wallet, ArrowUpRight, ArrowDownRight, Plus } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { TransactionModal } from './TransactionModal';
 
@@ -40,90 +40,102 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white">
-      <header className="mb-10 flex justify-between items-center">
+    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white relative overflow-hidden">
+      {/* Decorative Orbs for Glassmorphism depth */}
+      <div className="absolute top-[10%] -left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[20%] -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+      
+      <header className="mb-10 flex justify-between items-center relative z-10">
         <div>
           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Resumo Financeiro</h2>
           <p className="text-gray-400 mt-1">Visão geral do seu dinheiro em Abril</p>
         </div>
       </header>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-center min-h-[140px]">
-          <h3 className="text-gray-400 text-sm mb-2 font-medium tracking-wide">Saldo Total Agregado</h3>
-          <p className="text-4xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {totalBalance.toFixed(2)}</p>
+      {/* Summary Cards with Glassmorphism */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 relative z-10">
+        <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
+          <h3 className="text-gray-400 text-xs mb-2 font-bold tracking-widest uppercase">Saldo Total Agregado</h3>
+          <p className="text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {totalBalance.toFixed(2)}</p>
         </div>
-        <div className="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-center min-h-[140px]">
-          <h3 className="text-gray-400 text-sm mb-2 font-medium tracking-wide">Gastos Lançados</h3>
+        <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
+          <h3 className="text-gray-400 text-xs mb-2 font-bold tracking-widest uppercase">Gastos Lançados</h3>
           <p className="text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {monthExpenses.toFixed(2)}</p>
         </div>
-        <div className="bg-surface-container-low p-6 rounded-2xl flex flex-col justify-center min-h-[140px]">
-          <h3 className="text-gray-400 text-sm mb-2 font-medium tracking-wide">Faturas de Crédito base</h3>
+        <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
+          <h3 className="text-gray-400 text-xs mb-2 font-bold tracking-widest uppercase">Faturas de Crédito</h3>
           <p className="text-4xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {openFaturas.toFixed(2)}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        {/* Gráfico de Categorias */}
-        <div className="bg-surface-container-low p-6 rounded-3xl col-span-1 min-h-[300px] flex flex-col">
-          <h3 className="text-lg font-bold mb-6 tracking-wide grow-0">Gastos Reais por Categoria</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 relative z-10">
+        {/* Gráfico de Categorias Glass */}
+        <div className="bg-surface-variant/30 backdrop-blur-lg p-6 rounded-[2rem] col-span-1 min-h-[320px] flex flex-col border border-white/5 shadow-xl">
+          <h3 className="text-lg font-bold mb-6 tracking-wide grow-0">Gastos por Categoria</h3>
           <div className="flex-1 w-full min-h-[220px]">
             {expenseData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-500 font-medium">Nenhum gasto lançado ainda.</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={expenseData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
+                  <Pie data={expenseData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value" stroke="none">
                     {expenseData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
-                  <RechartsTooltip contentStyle={{ backgroundColor: '#20201f', border: 'none', borderRadius: '12px', color: '#fff' }} itemStyle={{ color: '#fff' }} formatter={(value) => `R$ ${value}`} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#20201f', border: 'none', borderRadius: '16px', color: '#fff' }} itemStyle={{ color: '#fff' }} formatter={(value) => `R$ ${value}`} />
                 </PieChart>
               </ResponsiveContainer>
             )}
           </div>
         </div>
 
-        {/* Gráfico de Tendências */}
-        <div className="bg-surface-container-low p-6 rounded-3xl col-span-1 lg:col-span-2 min-h-[300px] flex flex-col">
-          <h3 className="text-lg font-bold mb-6 tracking-wide grow-0">Projeção Receitas vs Despesas</h3>
+        {/* Gráfico de Tendências Glass */}
+        <div className="bg-surface-variant/30 backdrop-blur-lg p-6 rounded-[2rem] col-span-1 lg:col-span-2 min-h-[320px] flex flex-col border border-white/5 shadow-xl">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold tracking-wide">Projeção Receitas vs Despesas</h3>
+            <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary" /> Receita</span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-tertiary" /> Despesa</span>
+            </div>
+          </div>
           <div className="flex-1 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                <XAxis dataKey="month" stroke="#767575" tick={{fill: '#767575'}} axisLine={false} tickLine={false} />
-                <YAxis stroke="#767575" tick={{fill: '#767575'}} axisLine={false} tickLine={false} />
-                <RechartsTooltip contentStyle={{ backgroundColor: '#20201f', border: 'none', borderRadius: '12px', color: '#fff' }} />
-                <Line type="monotone" dataKey="revenue" name="Receita" stroke="#6bfe9c" strokeWidth={3} dot={{r: 4, fill: '#6bfe9c', strokeWidth: 0}} />
-                <Line type="monotone" dataKey="expenses" name="Despesa" stroke="#ff7765" strokeWidth={3} dot={{r: 4, fill: '#ff7765', strokeWidth: 0}} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                <XAxis dataKey="month" stroke="#767575" tick={{fill: '#767575', fontSize: 12}} axisLine={false} tickLine={false} />
+                <YAxis stroke="#767575" tick={{fill: '#767575', fontSize: 12}} axisLine={false} tickLine={false} hide />
+                <RechartsTooltip contentStyle={{ backgroundColor: '#20201f', border: 'none', borderRadius: '16px', color: '#fff' }} />
+                <Line type="monotone" dataKey="revenue" name="Receita" stroke="#6bfe9c" strokeWidth={4} dot={{r: 0}} activeDot={{r: 6, fill: '#6bfe9c', strokeWidth: 0}} />
+                <Line type="monotone" dataKey="expenses" name="Despesa" stroke="#ff7765" strokeWidth={4} dot={{r: 0}} activeDot={{r: 6, fill: '#ff7765', strokeWidth: 0}} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* Lista de Transações recentes */}
-      <div>
-        <h3 className="text-xl font-bold mb-6 tracking-wide">Transações Lançadas</h3>
+      {/* Lista de Transações com zebra Glass */}
+      <div className="relative z-10">
+        <h3 className="text-xl font-bold mb-6 tracking-wide ml-2">Transações Recentes</h3>
         {transactions.length === 0 ? (
-          <div className="text-gray-500 font-medium">Nenhuma transação efetuada.</div>
+          <div className="bg-surface-variant/20 backdrop-blur-sm p-12 text-center rounded-3xl border border-white/5">
+            <p className="text-gray-500 font-medium">Nenhuma transação efetuada nos últimos dias.</p>
+          </div>
         ) : (
-          <div className="bg-surface-container-low rounded-3xl overflow-hidden py-2">
+          <div className="bg-surface-variant/20 backdrop-blur-md rounded-[2rem] overflow-hidden p-2 border border-white/5 shadow-2xl">
             {transactions.slice(0, 5).map((tx, index) => {
               const category = categories.find(c => c.id === tx.categoryId);
               return (
-              <div key={tx.id} className={`flex items-center justify-between p-4 px-6 hover:bg-surface-container-high transition-colors cursor-pointer ${index !== transactions.length - 1 ? 'border-b border-surface-container-high/50' : ''}`}>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-surface-container-highest" style={{ color: category?.color || '#fff' }}>
+              <div key={tx.id} className={`flex items-center justify-between p-5 px-8 hover:bg-white/5 transition-all cursor-pointer rounded-2xl mb-1 last:mb-0 group`}>
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-surface-container-highest/50 shadow-inner group-hover:scale-110 transition-transform" style={{ color: category?.color || '#fff' }}>
                     {renderIcon(category?.icon || 'Wallet')}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{tx.description}</p>
-                    <p className="text-sm text-gray-400">{tx.date}</p>
+                    <p className="font-bold text-lg text-white group-hover:text-primary transition-colors">{tx.description}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-widest">{new Date(tx.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {category?.label || 'Geral'}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`font-bold ${tx.amount > 0 ? 'text-primary' : 'text-white'}`} style={{ fontFamily: 'var(--font-jakarta)'}}>
+                  <p className={`text-xl font-bold ${tx.amount > 0 ? 'text-primary' : 'text-white'}`} style={{ fontFamily: 'var(--font-jakarta)'}}>
                     {tx.amount > 0 ? '+' : ''}R$ {Math.abs(tx.amount).toFixed(2).replace('.', ',')}
                   </p>
                 </div>
@@ -133,8 +145,8 @@ export function Dashboard() {
         )}
       </div>
 
-      <button onClick={() => setIsModalOpen(true)} className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_30px_rgba(107,254,156,0.3)] flex items-center justify-center hover:scale-105 hover:rotate-90 transition-all duration-300 z-40">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <button onClick={() => setIsModalOpen(true)} className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_40px_rgba(107,254,156,0.5)] flex items-center justify-center hover:scale-110 hover:rotate-90 transition-all duration-300 z-50 group">
+        <Plus size={32} strokeWidth={3} />
       </button>
 
       <TransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
