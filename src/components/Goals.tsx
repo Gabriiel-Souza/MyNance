@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Target, TrendingUp, Calendar, Plus, ChevronRight, Zap } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { GoalModal } from './GoalModal';
+import type { Goal } from '../types';
 
 export const Goals: React.FC = () => {
   const { goals } = useFinanceStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
   const totalTarget = goals.reduce((acc, goal) => acc + goal.targetAmount, 0);
   const totalCurrent = goals.reduce((acc, goal) => acc + goal.currentAmount, 0);
-  const globalProgress = (totalCurrent / totalTarget) * 100;
+  const globalProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+
+  const handleEditGoal = (goal: Goal) => {
+    setSelectedGoal(goal);
+    setIsModalOpen(true);
+  };
+
+  const handleAddGoal = () => {
+    setSelectedGoal(null);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white">
@@ -45,7 +59,7 @@ export const Goals: React.FC = () => {
               </p>
             </div>
 
-            {/* Circular Progress (Simulado com SVG para fidelidade ao Stitch) */}
+            {/* Circular Progress */}
             <div className="relative w-40 h-40">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <circle
@@ -103,18 +117,19 @@ export const Goals: React.FC = () => {
           return (
             <div 
               key={goal.id} 
-              className="bg-surface-container-low rounded-3xl p-6 transition-all hover:-translate-y-1 hover:bg-surface-container-high"
+              onClick={() => handleEditGoal(goal)}
+              className="bg-surface-container-low rounded-3xl p-6 transition-all hover:-translate-y-1 hover:bg-surface-container-high cursor-pointer group"
             >
               <div className="flex items-start justify-between mb-6">
                 <div 
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center glass" 
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center glass transition-all group-hover:scale-110" 
                   style={{ backgroundColor: `${goal.color}20`, color: goal.color }}
                 >
                   <Target size={24} />
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-[10px] font-bold font-inter text-on-surface-variant uppercase tracking-widest mb-1 flex items-center gap-1">
-                    <Calendar size={12} /> {daysLeft} dias restantes
+                    <Calendar size={12} /> {daysLeft > 0 ? `${daysLeft} dias restantes` : 'Prazo encerrado'}
                   </span>
                   <span className="text-lg font-bold font-plus-jakarta">
                     R$ {goal.targetAmount.toLocaleString('pt-BR')}
@@ -142,7 +157,7 @@ export const Goals: React.FC = () => {
                 </div>
               </div>
 
-              <button className="w-full py-3 rounded-xl bg-on-background/5 hover:bg-on-background/10 text-xs font-bold font-inter transition-all">
+              <button className="w-full py-3 rounded-xl bg-on-background/5 hover:bg-on-background/10 text-xs font-bold font-inter transition-all group-hover:bg-primary group-hover:text-background">
                 Ver Detalhes
               </button>
             </div>
@@ -150,13 +165,22 @@ export const Goals: React.FC = () => {
         })}
 
         {/* FAB Style Add Goal Slot */}
-        <button className="border-2 border-dashed border-white/5 rounded-3xl p-6 flex flex-col items-center justify-center gap-4 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-all group min-h-[250px]">
+        <button 
+          onClick={handleAddGoal}
+          className="border-2 border-dashed border-white/5 rounded-3xl p-6 flex flex-col items-center justify-center gap-4 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-all group min-h-[250px]"
+        >
           <div className="w-16 h-16 rounded-full bg-on-background/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
             <Plus size={32} />
           </div>
           <span className="font-bold font-inter">Nova Meta</span>
         </button>
       </div>
+
+      <GoalModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        editGoal={selectedGoal}
+      />
     </div>
   );
 };

@@ -15,6 +15,8 @@ interface FinanceState {
   addCategory: (category: Omit<Category, 'id'>) => void;
   updateCategory: (id: string, category: Partial<Omit<Category, 'id'>>) => void;
   deleteCategory: (id: string) => void;
+  updateAccount: (id: string, account: Partial<Omit<Account, 'id'>>) => void;
+  deleteAccount: (id: string) => void;
   
   addGoal: (goal: Omit<Goal, 'id'>) => void;
   updateGoal: (id: string, goal: Partial<Omit<Goal, 'id'>>) => void;
@@ -57,6 +59,15 @@ export const useFinanceStore = create<FinanceState>()(
 
       addAccount: (acc) => set((state) => ({
         accounts: [...state.accounts, { ...acc, id: crypto.randomUUID() }]
+      })),
+
+      updateAccount: (id, acc) => set((state) => ({
+        accounts: state.accounts.map(a => a.id === id ? { ...a, ...acc } : a)
+      })),
+
+      deleteAccount: (id) => set((state) => ({
+        accounts: state.accounts.filter(a => a.id !== id),
+        transactions: state.transactions.filter(t => t.accountId !== id && t.destinationAccountId !== id)
       })),
 
       addCategory: (cat) => set((state) => ({

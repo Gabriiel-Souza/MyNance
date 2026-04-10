@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useFinanceStore } from '../store/useFinanceStore';
-import { Wallet, Utensils, Car, ShoppingBag, CreditCard, Search } from 'lucide-react';
+import { Wallet, Utensils, Car, ShoppingBag, CreditCard, Search, Plus } from 'lucide-react';
+import { TransactionModal } from './TransactionModal';
 
 const renderIcon = (iconName: string) => {
   switch (iconName) {
@@ -15,6 +16,7 @@ const renderIcon = (iconName: string) => {
 export function Transactions() {
   const { transactions, categories } = useFinanceStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredTransactions = transactions.filter(tx => 
     tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -23,7 +25,7 @@ export function Transactions() {
 
   // Agrupar por data (simplificado para exemplo)
   const groupedTransactions = filteredTransactions.reduce((acc, tx) => {
-    const date = tx.date;
+    const date = tx.date.split('T')[0];
     if (!acc[date]) acc[date] = [];
     acc[date].push(tx);
     return acc;
@@ -85,6 +87,15 @@ export function Transactions() {
           ))}
         </div>
       )}
+
+      <button 
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_30px_rgba(107,254,156,0.3)] flex items-center justify-center hover:scale-105 hover:rotate-90 transition-all duration-300 z-40"
+      >
+        <Plus size={32} />
+      </button>
+
+      <TransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }

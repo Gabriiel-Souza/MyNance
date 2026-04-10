@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { Wallet, CreditCard, Landmark, Plus } from 'lucide-react';
+import { AccountModal } from './AccountModal';
+import type { Account } from '../types';
 
 export function Accounts() {
   const { accounts, transactions } = useFinanceStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
   const getAccountBalance = (accountId: string) => {
     const account = accounts.find(a => a.id === accountId);
@@ -22,6 +27,16 @@ export function Accounts() {
     }, 0);
 
     return account.balance + txSum;
+  };
+
+  const handleEditAccount = (acc: Account) => {
+    setSelectedAccount(acc);
+    setIsModalOpen(true);
+  };
+
+  const handleAddAccount = () => {
+    setSelectedAccount(null);
+    setIsModalOpen(true);
   };
 
   const totalBalance = accounts.reduce((sum, acc) => sum + getAccountBalance(acc.id), 0);
@@ -73,6 +88,7 @@ export function Accounts() {
           return (
             <div 
               key={acc.id}
+              onClick={() => handleEditAccount(acc)}
               className="bg-surface-container-high rounded-3xl p-6 flex flex-col justify-between min-h-[220px] transition-transform hover:scale-[1.02] cursor-pointer group"
             >
               <div className="flex justify-between items-start mb-6">
@@ -121,7 +137,10 @@ export function Accounts() {
         })}
 
         {/* Adicionar nova conta (Placeholder/Botão) */}
-        <button className="border-2 border-dashed border-surface-container-highest rounded-3xl p-6 flex flex-col items-center justify-center min-h-[220px] hover:border-primary/40 hover:bg-primary/5 transition-all group">
+        <button 
+          onClick={handleAddAccount}
+          className="border-2 border-dashed border-surface-container-highest rounded-3xl p-6 flex flex-col items-center justify-center min-h-[220px] hover:border-primary/40 hover:bg-primary/5 transition-all group"
+        >
           <div className="w-12 h-12 rounded-full border-2 border-dashed border-surface-container-highest flex items-center justify-center text-gray-500 group-hover:bg-primary group-hover:text-background group-hover:border-transparent transition-all mb-4">
             <Plus size={24} />
           </div>
@@ -129,9 +148,18 @@ export function Accounts() {
         </button>
       </div>
 
-      <button className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_30px_rgba(107,254,156,0.3)] flex items-center justify-center hover:scale-105 hover:rotate-90 transition-all duration-300 z-40">
+      <button 
+        onClick={handleAddAccount}
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_30px_rgba(107,254,156,0.3)] flex items-center justify-center hover:scale-105 hover:rotate-90 transition-all duration-300 z-40"
+      >
         <Plus size={32} />
       </button>
+
+      <AccountModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        editAccount={selectedAccount}
+      />
     </div>
   );
 }
