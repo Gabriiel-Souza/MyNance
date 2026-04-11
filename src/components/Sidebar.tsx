@@ -46,10 +46,10 @@ export function Sidebar({ activePage, onNavigate, isOpen, onClose }: SidebarProp
             <button
               key={item.id}
               onClick={() => handleNavigate(item.id)}
-              className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all font-medium w-full text-left group ${
+              className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest w-full text-left group border ${
                 activePage === item.id 
-                  ? 'bg-surface-container-high text-primary shadow-[0_0_20px_rgba(107,254,156,0.1)]' 
-                  : 'text-gray-400 hover:text-white hover:bg-surface-container-low'
+                  ? 'bg-primary/10 text-primary border-primary/20 shadow-[inset_0_0_12px_rgba(107,254,156,0.05)]' 
+                  : 'text-gray-500 hover:text-white hover:bg-white/5 border-transparent'
               }`}
             >
               <span className={`transition-transform group-hover:scale-110 ${activePage === item.id ? 'scale-110' : ''}`}>

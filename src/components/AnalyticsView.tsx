@@ -78,7 +78,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Cards de Inteligência */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
+        <div className="glass-card p-5 rounded-3xl">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
               <TrendingUp size={16} />
@@ -91,7 +91,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
           </div>
         </div>
 
-        <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
+        <div className="glass-card p-5 rounded-3xl">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
               <Activity size={16} />
@@ -102,7 +102,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
           <p className="text-[10px] text-gray-400 mt-1">Este mês</p>
         </div>
 
-        <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
+        <div className="glass-card p-5 rounded-3xl">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary">
               <TrendingDown size={16} />
@@ -113,7 +113,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
           <p className="text-[10px] text-gray-400 mt-1">{categoryData.length > 0 ? formatCurrency(categoryData[0].value) : 'Sem gastos'}</p>
         </div>
 
-        <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
+        <div className="glass-card p-5 rounded-3xl">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
               <Calculator size={16} />
@@ -129,7 +129,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Gráfico de Comparação Mensal */}
-        <div className="bg-surface-variant/30 backdrop-blur-lg p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+        <div className="glass-card-high p-8 rounded-[2.5rem]">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h3 className="text-xl font-bold text-white">Fluxo de Caixa</h3>
@@ -154,7 +154,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
         </div>
 
         {/* Gráfico de Pizza Detalhado */}
-        <div className="bg-surface-variant/30 backdrop-blur-lg p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+        <div className="glass-card-high p-8 rounded-[2.5rem]">
           <div className="mb-8">
             <h3 className="text-xl font-bold text-white">Distribuição por Categoria</h3>
             <p className="text-xs text-gray-500 mt-1">Maiores impactos no seu orçamento</p>
