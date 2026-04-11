@@ -325,8 +325,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     )}
                   </div>
                 </div>
-              </div>
-            ) : (
+              ) : (
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Origem
