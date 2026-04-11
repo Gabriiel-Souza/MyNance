@@ -8,11 +8,14 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import { formatCurrency } from '../utils/formatters';
 import { TrendingUp, TrendingDown, Target, Zap } from 'lucide-react';
 
-export function AnalyticsView() {
-  const { transactions, categories, selectedDate = new Date() } = useFinanceStore(state => ({
+interface AnalyticsViewProps {
+  selectedDate: Date;
+}
+
+export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
+  const { transactions, categories } = useFinanceStore(state => ({
     transactions: state.transactions,
     categories: state.categories,
-    // Nota: Como o store não tem selectedDate ainda, usaremos a do sistema ou passaremos via props
   }));
 
   const currentMonth = selectedDate.getMonth();

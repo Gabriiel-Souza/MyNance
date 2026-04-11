@@ -212,7 +212,7 @@ export function Dashboard() {
           </div>
         </div>
       ) : (
-        <AnalyticsView />
+        <AnalyticsView selectedDate={selectedDate} />
       )}
 
       <button onClick={() => setIsModalOpen(true)} className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-background shadow-[0_0_40px_rgba(107,254,156,0.5)] flex items-center justify-center hover:scale-110 hover:rotate-90 transition-all duration-300 z-50 group">
