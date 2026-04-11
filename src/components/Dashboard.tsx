@@ -154,18 +154,40 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 relative z-10">
         <div className="bg-surface-variant/30 backdrop-blur-lg p-6 rounded-[2rem] col-span-1 min-h-[320px] flex flex-col border border-white/5 shadow-xl">
           <h3 className="text-lg font-bold mb-6 tracking-wide">Gastos por Categoria ({monthLabel})</h3>
-          <div className="flex-1 w-full min-h-[220px]">
+          <div className="flex-1 w-full min-h-[200px]">
             {expenseData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-500 font-medium text-center">Nenhum gasto lançado em {monthLabel}.</div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={expenseData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value" stroke="none">
-                    {expenseData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                  </Pie>
-                  <RechartsTooltip contentStyle={{ backgroundColor: '#20201f', border: 'none', borderRadius: '16px', color: '#fff' }} itemStyle={{ color: '#fff' }} formatter={(value) => `R$ ${value}`} />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="flex flex-col h-full">
+                <div className="flex-1 min-h-[160px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={expenseData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={8} dataKey="value" stroke="none">
+                        {expenseData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                      </Pie>
+                      <RechartsTooltip contentStyle={{ backgroundColor: '#20201f', border: 'none', borderRadius: '16px', color: '#fff' }} itemStyle={{ color: '#fff' }} formatter={(value) => `R$ ${value}`} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Listagem de Categorias com Ícones */}
+                <div className="mt-4 space-y-2 max-h-[120px] overflow-y-auto custom-scrollbar pr-2">
+                  {categories.map(cat => {
+                    const value = currentMonthTransactions.filter(t => t.categoryId === cat.id && t.type === 'OUT').reduce((s, t) => s + Math.abs(t.amount), 0);
+                    if (value === 0) return null;
+                    return (
+                      <div key={cat.id} className="flex items-center justify-between group">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded flex items-center justify-center bg-white/5" style={{ color: cat.color }}>
+                            {renderIcon(cat.icon)}
+                          </div>
+                          <span className="text-[11px] font-bold text-gray-400 group-hover:text-white transition-colors">{cat.label}</span>
+                        </div>
+                        <span className="text-[11px] font-black text-white/80">{formatCurrency(value)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
         </div>

@@ -164,6 +164,22 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
 
   const selectedCategory = categories.find(c => c.id === categoryId);
 
+  // Estados para os seletores customizados
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isDestAccountOpen, setIsDestAccountOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+  // Fecha dropdowns ao clicar fora
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      setIsAccountOpen(false);
+      setIsDestAccountOpen(false);
+      setIsCategoryOpen(false);
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
@@ -213,7 +229,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                 required
                 value={desc}
                 onChange={e => setDesc(e.target.value)}
-                className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-medium text-base focus:outline-none focus:border-primary transition-all placeholder:text-white/20"
+                className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-medium text-xs focus:outline-none focus:border-primary transition-all placeholder:text-white/20"
                 placeholder="Ex: Almoço, Netflix, Salário..."
                 autoFocus={!editTransaction}
               />
@@ -232,7 +248,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                       step="0.01"
                       value={totalAmount}
                       onChange={e => handleTotalChange(e.target.value)}
-                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-bold focus:outline-none border-dashed"
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none border-dashed"
                       placeholder="Total"
                     />
                   </div>
@@ -251,7 +267,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     required
                     value={amount}
                     onChange={e => setAmount(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-bold focus:outline-none focus:border-primary transition-all shadow-inner"
+                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner"
                     placeholder="0,00"
                   />
                 </div>
@@ -277,19 +293,37 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Conta
                   </label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary opacity-50 flex items-center justify-center w-5">
-                    {getAccountIcon(accountId)}
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsAccountOpen(!isAccountOpen)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
+                    >
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary opacity-50 flex items-center justify-center w-5">
+                        {getAccountIcon(accountId)}
+                      </div>
+                      <span className="truncate">{accounts.find(a => a.id === accountId)?.name || 'Selecionar...'}</span>
+                      <ChevronDown size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform ${isAccountOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isAccountOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {accounts.map(acc => (
+                          <button
+                            key={acc.id}
+                            type="button"
+                            onClick={() => { setAccountId(acc.id); setIsAccountOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: acc.color }}>
+                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                            </span>
+                            {acc.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <select 
-                    required
-                    value={accountId}
-                    onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                 </div>
               </div>
             ) : (
@@ -297,19 +331,36 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Origem
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary opacity-50 flex items-center justify-center w-5">
-                      {getAccountIcon(accountId)}
-                    </div>
-                    <select 
-                      required
-                      value={accountId}
-                      onChange={e => setAccountId(e.target.value)}
-                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsAccountOpen(!isAccountOpen)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
                     >
-                      {accounts.map(acc => <option key={acc.id} valueAcc={acc.id}>{acc.name}</option>)}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary opacity-50 flex items-center justify-center w-5">
+                        {getAccountIcon(accountId)}
+                      </div>
+                      <span className="truncate">{accounts.find(a => a.id === accountId)?.name || 'Selecionar...'}</span>
+                      <ChevronDown size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform ${isAccountOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isAccountOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {accounts.map(acc => (
+                          <button
+                            key={acc.id}
+                            type="button"
+                            onClick={() => { setAccountId(acc.id); setIsAccountOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: acc.color }}>
+                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                            </span>
+                            {acc.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -319,22 +370,36 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Destino
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary opacity-50 flex items-center justify-center w-5">
-                      {getAccountIcon(destinationAccountId)}
-                    </div>
-                    <select 
-                      required
-                      value={destinationAccountId}
-                      onChange={e => setDestinationAccountId(e.target.value)}
-                      className={`w-full bg-background border rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsDestAccountOpen(!isDestAccountOpen)}
+                      className={`w-full bg-background border rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2 ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
                     >
-                      <option value="" disabled>Escolha o destino...</option>
-                      {accounts.filter(acc => acc.id !== accountId).map(acc => (
-                        <option key={acc.id} value={acc.id}>{acc.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary opacity-50 flex items-center justify-center w-5">
+                        {getAccountIcon(destinationAccountId)}
+                      </div>
+                      <span className="truncate">{accounts.find(a => a.id === destinationAccountId)?.name || 'Escolha o destino...'}</span>
+                      <ChevronDown size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform ${isDestAccountOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isDestAccountOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {accounts.filter(acc => acc.id !== accountId).map(acc => (
+                          <button
+                            key={acc.id}
+                            type="button"
+                            onClick={() => { setDestinationAccountId(acc.id); setIsDestAccountOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: acc.color }}>
+                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                            </span>
+                            {acc.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -342,20 +407,36 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Categoria
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5" style={{ color: selectedCategory?.color }}>
-                      {renderCategoryIcon(selectedCategory?.icon || 'Wallet')}
-                    </div>
-                    <select 
-                      required
-                      value={categoryId}
-                      onChange={e => setCategoryId(e.target.value)}
-                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
                     >
-                      <option value="" disabled>Buscar categoria...</option>
-                      {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5" style={{ color: selectedCategory?.color }}>
+                        {renderCategoryIcon(selectedCategory?.icon || 'Wallet')}
+                      </div>
+                      <span className="truncate">{selectedCategory?.label || 'Buscar categoria...'}</span>
+                      <ChevronDown size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isCategoryOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-highest border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {categories.map(cat => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => { setCategoryId(cat.id); setIsCategoryOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: cat.color }}>
+                              {renderCategoryIcon(cat.icon)}
+                            </span>
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
