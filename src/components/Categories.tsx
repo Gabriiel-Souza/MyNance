@@ -42,7 +42,7 @@ export function Categories() {
           return (
             <div 
               key={cat.id} 
-              className="group relative bg-surface-variant/20 backdrop-blur-xl rounded-[2rem] p-8 flex flex-col items-center justify-center border border-white/5 shadow-2xl transition-all hover:scale-[1.05] hover:bg-surface-variant/30 min-h-[220px]"
+              className="group relative bg-surface-variant/20 backdrop-blur-xl rounded-[2rem] p-8 flex flex-col items-center justify-center border border-white/5 shadow-xl transition-all hover:scale-[1.05] hover:bg-surface-variant/30 min-h-[220px]"
             >
               {/* Glow Behind Icon */}
               <div 

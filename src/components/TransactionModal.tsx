@@ -239,7 +239,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-[#1a1a19] rounded-3xl p-8 border border-white/5 shadow-2xl z-10 my-auto">
+      <div className="relative w-full max-w-md bg-[#1a1a19] rounded-3xl p-8 border border-white/5 shadow-xl z-10 my-auto">
         <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 transition-colors text-gray-400 hover:text-white rotate-45">
           <Plus size={20} />
         </button>
@@ -361,7 +361,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     </button>
                     
                     {isAccountOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
                         {(accounts || []).map(acc => (
                           <button
                             key={acc.id}
@@ -398,7 +398,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     </button>
                     
                     {isAccountOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
                         {(accounts || []).map(acc => (
                           <button
                             key={acc.id}
@@ -437,7 +437,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     </button>
                     
                     {isDestAccountOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
                         {(accounts || []).filter(acc => acc.id !== accountId).map(acc => (
                           <button
                             key={acc.id}
@@ -474,7 +474,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     </button>
                     
                     {isCategoryOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
                         {(categories || []).map(cat => (
                           <button
                             key={cat.id}

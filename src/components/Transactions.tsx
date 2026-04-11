@@ -107,7 +107,7 @@ export function Transactions() {
 
       {/* Summary Cards Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-surface-variant/30 backdrop-blur-xl p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between min-h-[140px] shadow-2xl relative overflow-hidden group transition-transform hover:scale-[1.02]">
+        <div className="bg-surface-variant/30 backdrop-blur-xl p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between min-h-[140px] shadow-xl relative overflow-hidden group transition-transform hover:scale-[1.02]">
           <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
           <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] items-center flex gap-2 mb-2 relative z-10">
             <Landmark size={14} className="text-primary" /> Patrimônio Líquido Total
@@ -117,7 +117,7 @@ export function Transactions() {
           </p>
         </div>
 
-        <div className="bg-surface-variant/30 backdrop-blur-xl p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between min-h-[140px] shadow-2xl relative overflow-hidden group transition-transform hover:scale-[1.02]">
+        <div className="bg-surface-variant/30 backdrop-blur-xl p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between min-h-[140px] shadow-xl relative overflow-hidden group transition-transform hover:scale-[1.02]">
           <div className={`absolute -right-8 -top-8 w-32 h-32 ${monthlyResult >= 0 ? 'bg-primary/10' : 'bg-tertiary/10'} rounded-full blur-2xl`} />
           <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-[10px] items-center flex gap-2 mb-2 relative z-10">
             {monthlyResult >= 0 ? <ArrowUpCircle size={14} className="text-primary" /> : <ArrowDownCircle size={14} className="text-tertiary" />}
@@ -138,7 +138,7 @@ export function Transactions() {
           {Object.entries(groupedTransactions).sort((a,b) => new Date(b[0]).getTime() - new Date(a[0]).getTime()).map(([date, txs]) => (
             <div key={date}>
               <h3 className="text-gray-500 text-xs font-black uppercase tracking-widest mb-4 ml-4">{new Date(date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric'})}</h3>
-              <div className="bg-surface-variant/20 backdrop-blur-md rounded-[2.5rem] overflow-hidden p-2 border border-white/5 shadow-2xl">
+              <div className="bg-surface-variant/20 backdrop-blur-md rounded-[2.5rem] overflow-hidden p-2 border border-white/5 shadow-xl">
                 {txs.map((tx, index) => {
                   const category = categories.find(c => c.id === tx.categoryId);
                   return (
