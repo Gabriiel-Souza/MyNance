@@ -152,7 +152,12 @@ export function Transactions() {
                           {renderIcon(category?.icon || 'Wallet')}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-base md:text-xl text-white group-hover:text-primary transition-colors truncate">{tx.description}</p>
+                          <p className="font-bold text-base md:text-xl text-white group-hover:text-primary transition-colors truncate">
+                            {tx.description}
+                            {tx.installment && (
+                              <span className="ml-2 text-[10px] text-gray-500 font-medium font-inter tracking-normal normal-case">({tx.installment.current}/{tx.installment.total})</span>
+                            )}
+                          </p>
                           <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-[0.2em] truncate">{category?.label || 'Geral'}</p>
                         </div>
                       </div>

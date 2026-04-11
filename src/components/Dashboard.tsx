@@ -210,7 +210,12 @@ export function Dashboard() {
                     {renderIcon(category?.icon || 'Wallet')}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-sm md:text-lg text-white group-hover:text-primary transition-colors truncate">{tx.description}</p>
+                    <p className="font-bold text-sm md:text-lg text-white group-hover:text-primary transition-colors truncate">
+                      {tx.description}
+                      {tx.installment && (
+                        <span className="ml-2 text-[10px] text-gray-500 font-medium">({tx.installment.current}/{tx.installment.total})</span>
+                      )}
+                    </p>
                     <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-widest truncate">{new Date(tx.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {category?.label || 'Geral'}</p>
                   </div>
                 </div>

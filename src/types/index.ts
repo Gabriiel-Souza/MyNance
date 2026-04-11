@@ -10,6 +10,11 @@ export interface Transaction {
   accountId: string;  // Conta de origem
   destinationAccountId?: string; // Conta de destino (apenas para type TRANSFER)
   isRecurring: boolean;
+  recurrenceId?: string; // Para agrupar transações recorrentes/parceladas
+  installment?: {
+    current: number;
+    total: number;
+  };
 }
 
 export type AccountType = 'CREDIT' | 'DEBIT' | 'CASH';

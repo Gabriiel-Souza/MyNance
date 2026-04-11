@@ -9,9 +9,9 @@ interface FinanceState {
   goals: Goal[];
   
   // Actions
-  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  addTransaction: (transaction: Omit<Transaction, 'id'>, repeatCount?: number) => void;
   updateTransaction: (id: string, transaction: Partial<Omit<Transaction, 'id'>>) => void;
-  removeTransaction: (id: string) => void;
+  removeTransaction: (id: string, deleteAllFuture?: boolean) => void;
   addAccount: (account: Omit<Account, 'id'>) => void;
   addCategory: (category: Omit<Category, 'id'>) => void;
   updateCategory: (id: string, category: Partial<Omit<Category, 'id'>>) => void;
@@ -47,20 +47,60 @@ export const useFinanceStore = create<FinanceState>()(
       ],
       categories: initialCategories,
 
-      addTransaction: (tx) => set((state) => ({
-        transactions: [
-          { ...tx, id: crypto.randomUUID() },
-          ...state.transactions
-        ]
-      })),
+      addTransaction: (tx, repeatCount = 1) => set((state) => {
+        if (repeatCount > 1) {
+          const recurrenceId = crypto.randomUUID();
+          const newTxs: Transaction[] = [];
+          const baseDate = new Date(tx.date);
+          
+          for (let i = 0; i < repeatCount; i++) {
+            const date = new Date(baseDate);
+            date.setMonth(baseDate.getMonth() + i);
+            
+            newTxs.push({
+              ...tx,
+              id: crypto.randomUUID(),
+              date: date.toISOString(),
+              recurrenceId,
+              installment: tx.installment ? { 
+                current: i + 1, 
+                total: repeatCount 
+              } : undefined
+            });
+          }
+          return { transactions: [...newTxs, ...state.transactions] };
+        }
+
+        return {
+          transactions: [
+            { ...tx, id: crypto.randomUUID() },
+            ...state.transactions
+          ]
+        };
+      }),
 
       updateTransaction: (id, tx) => set((state) => ({
         transactions: state.transactions.map(t => t.id === id ? { ...t, ...tx } : t)
       })),
       
-      removeTransaction: (id) => set((state) => ({
-        transactions: state.transactions.filter(tx => tx.id !== id)
-      })),
+      removeTransaction: (id, deleteAllFuture = false) => set((state) => {
+        const txToDelete = state.transactions.find(t => t.id === id);
+        if (!txToDelete) return state;
+
+        if (deleteAllFuture && txToDelete.recurrenceId) {
+          const deleteDate = new Date(txToDelete.date);
+          return {
+            transactions: state.transactions.filter(t => 
+              t.recurrenceId !== txToDelete.recurrenceId || 
+              new Date(t.date) < deleteDate
+            )
+          };
+        }
+
+        return {
+          transactions: state.transactions.filter(tx => tx.id !== id)
+        };
+      }),
 
       addAccount: (acc) => set((state) => ({
         accounts: [...state.accounts, { ...acc, id: crypto.randomUUID() }]

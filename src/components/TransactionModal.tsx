@@ -20,6 +20,12 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   const [accountId, setAccountId] = useState('');
   const [destinationAccountId, setDestinationAccountId] = useState('');
   const [isShaking, setIsShaking] = useState(false);
+  
+  // Repetition States
+  const [isRepetitive, setIsRepetitive] = useState(false);
+  const [repeatType, setRepeatType] = useState<'FIXED' | 'INSTALLMENT'>('FIXED');
+  const [repeatCount, setRepeatCount] = useState('12');
+  const [totalAmount, setTotalAmount] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -31,14 +37,19 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
         setCategoryId(editTransaction.categoryId || '');
         setAccountId(editTransaction.accountId);
         setDestinationAccountId(editTransaction.destinationAccountId || '');
+        setIsRepetitive(editTransaction.isRecurring);
       } else {
         setType('OUT');
         setAmount('');
+        setTotalAmount('');
         setDesc('');
         setDate(new Date().toISOString().split('T')[0]);
         setCategoryId(categories[0]?.id || '');
         setAccountId(accounts[0]?.id || '');
         setDestinationAccountId('');
+        setIsRepetitive(false);
+        setRepeatType('FIXED');
+        setRepeatCount('24');
       }
     }
   }, [isOpen, editTransaction, categories, accounts]);
@@ -62,6 +73,26 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     setTimeout(() => setIsShaking(false), 400);
   };
 
+  const handleTotalChange = (value: string) => {
+    setTotalAmount(value);
+    if (isRepetitive && repeatType === 'INSTALLMENT' && value) {
+      const count = Number(repeatCount);
+      if (count > 0) {
+        setAmount((Number(value) / count).toFixed(2));
+      }
+    }
+  };
+
+  const handleRepeatCountChange = (value: string) => {
+    setRepeatCount(value);
+    if (isRepetitive && repeatType === 'INSTALLMENT' && totalAmount) {
+      const count = Number(value);
+      if (count > 0) {
+        setAmount((Number(totalAmount) / count).toFixed(2));
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid()) {
@@ -83,15 +114,28 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     if (editTransaction) {
       updateTransaction(editTransaction.id, txData);
     } else {
-      addTransaction(txData);
+      const count = isRepetitive ? (repeatType === 'FIXED' ? 24 : Number(repeatCount)) : 1;
+      addTransaction({
+        ...txData,
+        isRecurring: isRepetitive,
+        installment: isRepetitive && repeatType === 'INSTALLMENT' ? { current: 1, total: Number(repeatCount) } : undefined
+      }, count);
     }
     
     onClose();
   };
 
   const handleDelete = () => {
-    if (editTransaction && window.confirm('Tem certeza que deseja excluir esta transação?')) {
-      removeTransaction(editTransaction.id);
+    if (editTransaction) {
+      if (editTransaction.recurrenceId) {
+        if (window.confirm('Esta é uma transação recorrente. Deseja excluir este e TODOS os lançamentos futuros? (Cancelar para excluir apenas este)')) {
+          removeTransaction(editTransaction.id, true);
+        } else {
+          removeTransaction(editTransaction.id, false);
+        }
+      } else if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
+        removeTransaction(editTransaction.id, false);
+      }
       onClose();
     }
   };
@@ -137,23 +181,44 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="relative">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
-              <DollarSign size={14} className="text-primary" /> Valor Bruto
-            </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
-              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-500">R$</span>
-              <input 
-                type="number"
-                step="0.01"
-                required
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                className="w-full bg-background border border-white/5 rounded-2xl pl-16 pr-6 py-6 text-4xl font-bold focus:outline-none focus:border-primary transition-all shadow-2xl"
-                placeholder="0,00"
-                autoFocus={!editTransaction}
-              />
+              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
+                <DollarSign size={14} className="text-primary" /> {isRepetitive && repeatType === 'INSTALLMENT' ? 'Valor da Parcela' : 'Valor'}
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-500">R$</span>
+                <input 
+                  type="number"
+                  step="0.01"
+                  required
+                  value={amount}
+                  onChange={e => setAmount(e.target.value)}
+                  className="w-full bg-background border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-2xl font-bold focus:outline-none focus:border-primary transition-all"
+                  placeholder="0,00"
+                  autoFocus={!editTransaction}
+                />
+              </div>
             </div>
+
+            {isRepetitive && repeatType === 'INSTALLMENT' && (
+              <div className="relative">
+                <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
+                  Valor Total
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-500">R$</span>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    value={totalAmount}
+                    onChange={e => handleTotalChange(e.target.value)}
+                    className="w-full bg-background border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-2xl font-bold focus:outline-none border-dashed border-white/10"
+                    placeholder="Total"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -262,6 +327,64 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {!editTransaction && type !== 'TRANSFER' && (
+            <div className="bg-surface-container-low/50 rounded-[2rem] p-6 border border-white/5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <RefreshCw size={16} className={isRepetitive ? 'text-primary' : 'text-gray-500'} />
+                  <span className={`text-xs font-black uppercase tracking-widest ${isRepetitive ? 'text-white' : 'text-gray-500'}`}>Repetir Lançamento</span>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsRepetitive(!isRepetitive)}
+                  className={`w-12 h-6 rounded-full relative transition-all ${isRepetitive ? 'bg-primary' : 'bg-white/10'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isRepetitive ? 'left-7' : 'left-1'}`} />
+                </button>
+              </div>
+
+              {isRepetitive && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRepeatType('FIXED')}
+                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${repeatType === 'FIXED' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
+                    >
+                      Lançamento Fixo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRepeatType('INSTALLMENT')}
+                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${repeatType === 'INSTALLMENT' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
+                    >
+                      Parcelado
+                    </button>
+                  </div>
+
+                  {repeatType === 'INSTALLMENT' && (
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs font-bold text-gray-400">Parcelas:</span>
+                      <input 
+                        type="number"
+                        min="2"
+                        value={repeatCount}
+                        onChange={e => handleRepeatCountChange(e.target.value)}
+                        className="w-20 bg-background border border-white/5 rounded-xl px-3 py-2 text-center font-bold focus:outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-gray-500 italic">
+                    {repeatType === 'FIXED' 
+                      ? '* O sistema gerará este lançamento mensalmente pelos próximos 2 anos.' 
+                      : `* Serão criados ${repeatCount} lançamentos sequenciais nos próximos meses.`}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
