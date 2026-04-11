@@ -247,7 +247,8 @@ export function Dashboard() {
                   </p>
                 </div>
               </div>
-            )})}
+            );
+          })}
           </div>
         )}
       </div>
