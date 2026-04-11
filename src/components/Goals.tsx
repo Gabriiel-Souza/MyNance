@@ -24,13 +24,13 @@ export const Goals: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white">
+    <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">
       {/* Header Editorial */}
-      <header className="mb-12">
-        <h1 className="text-5xl font-bold font-plus-jakarta tracking-tight mb-2">
+      <header className="mb-8 md:mb-12">
+        <h1 className="text-3xl md:text-5xl font-bold font-plus-jakarta tracking-tight mb-2">
           Minhas Metas
         </h1>
-        <p className="text-2xl font-caveat text-primary">
+        <p className="text-xl md:text-2xl font-caveat text-primary opacity-80">
           "Economizar é a arte de escolher o seu futuro."
         </p>
       </header>

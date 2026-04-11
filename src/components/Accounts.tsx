@@ -45,12 +45,19 @@ export function Accounts() {
     .reduce((sum, acc) => sum + (acc.limit || 0) + getAccountBalance(acc.id), 0);
 
   return (
-    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white">
-      <header className="mb-10 flex justify-between items-end">
+    <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">
+      <header className="mb-10 flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Minhas Contas</h2>
-          <p className="text-gray-400 mt-1">Gestão de cartões, bancos e dinheiro físico</p>
+          <p className="text-gray-400 mt-1">Gerencie seu saldo e cartões</p>
         </div>
+        <button 
+          onClick={handleAddAccount}
+          className="w-12 h-12 md:w-auto md:px-6 md:h-12 bg-primary text-background rounded-2xl md:rounded-full font-black flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(107,254,156,0.2)]"
+        >
+          <Plus size={24} />
+          <span className="hidden md:inline">Nova Conta</span>
+        </button>
       </header>
 
       {/* Resumo Geral com Glassmorphism */}

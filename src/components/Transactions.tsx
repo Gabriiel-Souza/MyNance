@@ -32,7 +32,7 @@ export function Transactions() {
   }, {} as Record<string, typeof transactions>);
 
   return (
-    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white">
+    <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">
       <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Transações</h2>

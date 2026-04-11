@@ -40,10 +40,10 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white relative overflow-hidden">
-      {/* Decorative Orbs for Glassmorphism depth */}
-      <div className="absolute top-[10%] -left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[20%] -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+    <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white relative overflow-hidden">
+      {/* Decorative Orbs for Glassmorphism depth - only on desktop for performance and clarity */}
+      <div className="hidden md:block absolute top-[10%] -left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="hidden md:block absolute bottom-[20%] -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
       
       <header className="mb-10 flex justify-between items-center relative z-10">
         <div>
@@ -53,18 +53,18 @@ export function Dashboard() {
       </header>
 
       {/* Summary Cards with Glassmorphism */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 relative z-10">
-        <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
-          <h3 className="text-gray-400 text-xs mb-2 font-bold tracking-widest uppercase">Saldo Total Agregado</h3>
-          <p className="text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {totalBalance.toFixed(2)}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-10 relative z-10">
+        <div className="bg-surface-variant/40 backdrop-blur-xl p-5 md:p-6 rounded-3xl flex flex-col justify-center min-h-[120px] md:min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
+          <h3 className="text-gray-400 text-[10px] md:text-xs mb-2 font-bold tracking-widest uppercase">Saldo Total Agregado</h3>
+          <p className="text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {totalBalance.toFixed(2)}</p>
         </div>
-        <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
-          <h3 className="text-gray-400 text-xs mb-2 font-bold tracking-widest uppercase">Gastos Lançados</h3>
-          <p className="text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {monthExpenses.toFixed(2)}</p>
+        <div className="bg-surface-variant/40 backdrop-blur-xl p-5 md:p-6 rounded-3xl flex flex-col justify-center min-h-[120px] md:min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
+          <h3 className="text-gray-400 text-[10px] md:text-xs mb-2 font-bold tracking-widest uppercase">Gastos Lançados</h3>
+          <p className="text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {monthExpenses.toFixed(2)}</p>
         </div>
-        <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
-          <h3 className="text-gray-400 text-xs mb-2 font-bold tracking-widest uppercase">Faturas de Crédito</h3>
-          <p className="text-4xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {openFaturas.toFixed(2)}</p>
+        <div className="bg-surface-variant/40 backdrop-blur-xl p-5 md:p-6 rounded-3xl flex flex-col justify-center min-h-[120px] md:min-h-[140px] border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
+          <h3 className="text-gray-400 text-[10px] md:text-xs mb-2 font-bold tracking-widest uppercase">Faturas de Crédito</h3>
+          <p className="text-3xl md:text-4xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {openFaturas.toFixed(2)}</p>
         </div>
       </div>
 
@@ -124,18 +124,18 @@ export function Dashboard() {
             {transactions.slice(0, 5).map((tx, index) => {
               const category = categories.find(c => c.id === tx.categoryId);
               return (
-              <div key={tx.id} className={`flex items-center justify-between p-5 px-8 hover:bg-white/5 transition-all cursor-pointer rounded-2xl mb-1 last:mb-0 group`}>
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-surface-container-highest/50 shadow-inner group-hover:scale-110 transition-transform" style={{ color: category?.color || '#fff' }}>
+              <div key={tx.id} className={`flex items-center justify-between p-4 md:p-5 px-4 md:px-8 hover:bg-white/5 transition-all cursor-pointer rounded-2xl mb-1 last:mb-0 group`}>
+                <div className="flex items-center gap-3 md:gap-5">
+                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center bg-surface-container-highest/50 shadow-inner group-hover:scale-110 transition-transform" style={{ color: category?.color || '#fff' }}>
                     {renderIcon(category?.icon || 'Wallet')}
                   </div>
-                  <div>
-                    <p className="font-bold text-lg text-white group-hover:text-primary transition-colors">{tx.description}</p>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-widest">{new Date(tx.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {category?.label || 'Geral'}</p>
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm md:text-lg text-white group-hover:text-primary transition-colors truncate">{tx.description}</p>
+                    <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-widest truncate">{new Date(tx.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {category?.label || 'Geral'}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`text-xl font-bold ${tx.amount > 0 ? 'text-primary' : 'text-white'}`} style={{ fontFamily: 'var(--font-jakarta)'}}>
+                <div className="text-right flex-shrink-0">
+                  <p className={`text-base md:text-xl font-bold ${tx.amount > 0 ? 'text-primary' : 'text-white'}`} style={{ fontFamily: 'var(--font-jakarta)'}}>
                     {tx.amount > 0 ? '+' : ''}R$ {Math.abs(tx.amount).toFixed(2).replace('.', ',')}
                   </p>
                 </div>

@@ -24,7 +24,8 @@ export function Categories() {
   };
 
   return (
-    <div className="flex-1 p-8 ml-64 min-h-screen bg-background text-white relative overflow-hidden">
+  return (
+    <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white relative overflow-hidden">
       {/* Background Neon Orbs */}
       <div className="absolute top-[20%] right-0 w-96 h-96 bg-tertiary/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[10%] w-72 h-72 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
