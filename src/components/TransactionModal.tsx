@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
-import { X, Check, Calendar, DollarSign, Tag, CreditCard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Check, Calendar, DollarSign, Tag, CreditCard, Trash2, ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
-import type { TransactionType } from '../types';
+import type { Transaction, TransactionType } from '../types';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  editTransaction?: Transaction | null;
 }
 
-export function TransactionModal({ isOpen, onClose }: ModalProps) {
-  const { categories, addTransaction, accounts } = useFinanceStore();
+export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProps) {
+  const { categories, addTransaction, updateTransaction, removeTransaction, accounts } = useFinanceStore();
+  
   const [type, setType] = useState<TransactionType>('OUT');
   const [amount, setAmount] = useState('');
   const [desc, setDesc] = useState('');
@@ -21,12 +23,25 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setCategoryId(categories[0]?.id || '');
-      setAccountId(accounts[0]?.id || '');
-      setDestinationAccountId(accounts[1]?.id || accounts[0]?.id || '');
-      setDate(new Date().toISOString().split('T')[0]);
+      if (editTransaction) {
+        setType(editTransaction.type);
+        setAmount(Math.abs(editTransaction.amount).toString());
+        setDesc(editTransaction.description);
+        setDate(new Date(editTransaction.date).toISOString().split('T')[0]);
+        setCategoryId(editTransaction.categoryId || '');
+        setAccountId(editTransaction.accountId);
+        setDestinationAccountId(editTransaction.destinationAccountId || '');
+      } else {
+        setType('OUT');
+        setAmount('');
+        setDesc('');
+        setDate(new Date().toISOString().split('T')[0]);
+        setCategoryId(categories[0]?.id || '');
+        setAccountId(accounts[0]?.id || '');
+        setDestinationAccountId('');
+      }
     }
-  }, [isOpen, categories, accounts]);
+  }, [isOpen, editTransaction, categories, accounts]);
 
   if (!isOpen) return null;
 
@@ -54,7 +69,7 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
       return;
     }
 
-    addTransaction({
+    const txData = {
       description: desc,
       amount: type === 'OUT' ? -Number(amount) : Number(amount),
       date: new Date(date).toISOString(),
@@ -63,11 +78,22 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
       accountId: accountId,
       destinationAccountId: type === 'TRANSFER' ? destinationAccountId : undefined,
       isRecurring: false
-    });
+    };
+
+    if (editTransaction) {
+      updateTransaction(editTransaction.id, txData);
+    } else {
+      addTransaction(txData);
+    }
     
-    setAmount('');
-    setDesc('');
     onClose();
+  };
+
+  const handleDelete = () => {
+    if (editTransaction && window.confirm('Tem certeza que deseja excluir esta transação?')) {
+      removeTransaction(editTransaction.id);
+      onClose();
+    }
   };
 
   const valid = isFormValid();
@@ -76,12 +102,14 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-surface-container-highest rounded-3xl p-8 border border-white/5 shadow-2xl z-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div className="relative w-full max-w-md bg-surface-container-highest rounded-3xl p-8 border border-white/5 shadow-2xl z-10 max-h-[90vh] overflow-y-auto custom-scrollbar transition-all">
         <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 transition-colors text-gray-400 hover:text-white">
           <X size={20} />
         </button>
 
-        <h2 className="text-2xl font-bold mb-8 font-plus-jakarta">Nova Transação</h2>
+        <h2 className="text-2xl font-bold mb-8 font-plus-jakarta">
+          {editTransaction ? 'Editar Transação' : 'Nova Transação'}
+        </h2>
 
         <div className="flex gap-2 mb-8 bg-surface-container-low p-1.5 rounded-2xl border border-white/5">
           {(['OUT', 'IN', 'TRANSFER'] as TransactionType[]).map((t) => (
@@ -89,7 +117,7 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
               key={t}
               type="button"
               onClick={() => setType(t)}
-              className={`flex-1 py-2.5 px-2 text-xs font-black rounded-xl transition-all uppercase tracking-wider ${
+              className={`flex-1 py-2.5 px-2 text-[10px] md:text-xs font-black rounded-xl transition-all uppercase tracking-[0.1em] ${
                 type === t 
                   ? t === 'OUT' ? 'bg-tertiary text-white shadow-lg shadow-tertiary/20' 
                   : t === 'IN' ? 'bg-primary text-background shadow-lg shadow-primary/20'
@@ -97,105 +125,121 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              {t === 'OUT' ? 'Despesa' : t === 'IN' ? 'Receita' : 'Transf.'}
+              {t === 'OUT' ? (
+                <span className="flex items-center justify-center gap-1.5"><ArrowDownCircle size={14} /> Despesa</span>
+              ) : t === 'IN' ? (
+                <span className="flex items-center justify-center gap-1.5"><ArrowUpCircle size={14} /> Receita</span>
+              ) : (
+                <span className="flex items-center justify-center gap-1.5"><RefreshCw size={14} /> Transf.</span>
+              )}
             </button>
           ))}
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="relative">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-              <DollarSign size={14} /> Valor (R$)
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
+              <DollarSign size={14} className="text-primary" /> Valor Bruto
             </label>
-            <input 
-              type="number"
-              step="0.01"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-5 text-3xl font-bold focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
-              placeholder="0,00"
-              autoFocus
-            />
+            <div className="relative">
+              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-500">R$</span>
+              <input 
+                type="number"
+                step="0.01"
+                required
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                className="w-full bg-background border border-white/5 rounded-2xl pl-16 pr-6 py-6 text-4xl font-bold focus:outline-none focus:border-primary transition-all shadow-2xl"
+                placeholder="0,00"
+                autoFocus={!editTransaction}
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
               Descrição
             </label>
             <input 
               type="text"
+              required
               value={desc}
               onChange={e => setDesc(e.target.value)}
-              className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
-              placeholder="Ex: Almoço, Salário..."
+              className="w-full bg-background border border-white/5 rounded-2xl px-6 py-4 font-bold text-lg focus:outline-none focus:border-primary transition-all"
+              placeholder="Ex: Almoço, Netflix, Salário..."
             />
           </div>
 
-          <div className={type === 'TRANSFER' ? 'flex flex-col gap-6' : 'grid grid-cols-2 gap-4'}>
-            <div className={type === 'TRANSFER' ? 'w-full' : ''}>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
                 <Calendar size={14} /> Data
               </label>
               <input 
                 type="date"
+                required
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] [color-scheme:dark]"
+                className="w-full bg-background border border-white/5 rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
               />
             </div>
 
-            {type !== 'TRANSFER' && (
+            {type !== 'TRANSFER' ? (
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
                   <CreditCard size={14} /> Conta
                 </label>
                 <select 
+                  required
                   value={accountId}
                   onChange={e => setAccountId(e.target.value)}
-                  className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer"
+                  className="w-full bg-background border border-white/5 rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary appearance-none cursor-pointer"
                 >
                   {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
                 </select>
               </div>
+            ) : (
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
+                    <CreditCard size={14} /> Origem
+                  </label>
+                  <select 
+                    required
+                    value={accountId}
+                    onChange={e => setAccountId(e.target.value)}
+                    className="w-full bg-background border border-white/5 rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  >
+                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                  </select>
+                </div>
             )}
           </div>
 
           {type === 'TRANSFER' && (
-            <>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <CreditCard size={14} /> Conta de Origem
-                </label>
-                <select 
-                  value={accountId}
-                  onChange={e => setAccountId(e.target.value)}
-                  className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer"
-                >
-                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <CreditCard size={14} /> Conta de Destino
-                </label>
-                <select 
-                  value={destinationAccountId}
-                  onChange={e => setDestinationAccountId(e.target.value)}
-                  className={`w-full bg-background border rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary shadow-[0_0_15px_rgba(255,119,101,0.2)]' : 'border-surface-container-high'}`}
-                >
-                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                </select>
-                {accountId === destinationAccountId && (
-                  <p className="text-tertiary text-[10px] font-bold uppercase mt-2 tracking-widest animate-pulse">As contas devem ser diferentes</p>
-                )}
-              </div>
-            </>
+            <div>
+              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
+                <RefreshCw size={14} /> Destino
+              </label>
+              <select 
+                required
+                value={destinationAccountId}
+                onChange={e => setDestinationAccountId(e.target.value)}
+                className={`w-full bg-background border rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/5'}`}
+              >
+                <option value="" disabled>Escolha o destino...</option>
+                {accounts.filter(acc => acc.id !== accountId).map(acc => (
+                  <option key={acc.id} value={acc.id}>{acc.name}</option>
+                ))}
+              </select>
+              {accountId === destinationAccountId && (
+                <p className="text-tertiary text-[10px] font-black uppercase mt-2 ml-2 tracking-widest">Contas devem ser diferentes</p>
+              )}
+            </div>
           )}
 
           {type !== 'TRANSFER' && (
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2 ml-2">
                 <Tag size={14} /> Categoria
               </label>
               <div className="flex flex-wrap gap-2">
@@ -204,17 +248,16 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
                     key={cat.id}
                     type="button"
                     onClick={() => setCategoryId(cat.id)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
+                    className={`px-4 py-2.5 rounded-full text-[10px] font-black transition-all border uppercase tracking-wider ${
                       categoryId === cat.id 
                         ? 'border-transparent text-background shadow-lg' 
-                        : 'border-white/5 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-200'
+                        : 'border-white/5 bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300'
                     }`}
                     style={{ 
                       backgroundColor: categoryId === cat.id ? cat.color : undefined,
-                      boxShadow: categoryId === cat.id ? `0 0 15px ${cat.color}40` : undefined
+                      boxShadow: categoryId === cat.id ? `0 0 15px ${cat.color}60` : undefined
                     }}
                   >
-                    {categoryId === cat.id && <Check size={12} className="inline mr-1" strokeWidth={3} />}
                     {cat.label}
                   </button>
                 ))}
@@ -222,13 +265,25 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
             </div>
           )}
 
-          <button 
-            type="submit"
-            onClick={!valid ? triggerShake : undefined}
-            className={`mt-4 w-full bg-primary text-background px-4 py-4 font-black rounded-2xl shadow-[0_0_25px_rgba(107,254,156,0.2)] transition-all text-lg uppercase tracking-tight ${!valid ? 'disabled-glow' : 'hover:scale-[1.02] active:scale-[0.98]'} ${isShaking ? 'animate-shake' : ''}`}
-          >
-            Confirmar Transação
-          </button>
+          <div className="flex flex-col gap-3 pt-4">
+            <button 
+              type="submit"
+              onClick={!valid ? triggerShake : undefined}
+              className={`w-full bg-primary text-background py-5 font-black rounded-2xl shadow-xl transition-all text-xl uppercase tracking-tight ${!valid ? 'opacity-50 grayscale' : 'hover:scale-[1.02] active:scale-[0.98]'} ${isShaking ? 'animate-shake' : ''}`}
+            >
+              {editTransaction ? 'Salvar Alterações' : 'Confirmar Lançamento'}
+            </button>
+
+            {editTransaction && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="w-full bg-tertiary/10 text-tertiary py-4 font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-tertiary/20 transition-all border border-tertiary/10"
+              >
+                <Trash2 size={18} /> Excluir Transação
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>

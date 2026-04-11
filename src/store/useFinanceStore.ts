@@ -10,6 +10,7 @@ interface FinanceState {
   
   // Actions
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  updateTransaction: (id: string, transaction: Partial<Omit<Transaction, 'id'>>) => void;
   removeTransaction: (id: string) => void;
   addAccount: (account: Omit<Account, 'id'>) => void;
   addCategory: (category: Omit<Category, 'id'>) => void;
@@ -51,6 +52,10 @@ export const useFinanceStore = create<FinanceState>()(
           { ...tx, id: crypto.randomUUID() },
           ...state.transactions
         ]
+      })),
+
+      updateTransaction: (id, tx) => set((state) => ({
+        transactions: state.transactions.map(t => t.id === id ? { ...t, ...tx } : t)
       })),
       
       removeTransaction: (id) => set((state) => ({
