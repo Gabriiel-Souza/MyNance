@@ -12,10 +12,8 @@ interface AnalyticsViewProps {
 }
 
 export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
-  const { transactions, categories } = useFinanceStore(state => ({
-    transactions: state.transactions || [],
-    categories: state.categories || [],
-  }));
+  const transactions = useFinanceStore(state => state.transactions);
+  const categories = useFinanceStore(state => state.categories);
 
   const currentMonth = selectedDate?.getMonth() ?? new Date().getMonth();
   const currentYear = selectedDate?.getFullYear() ?? new Date().getFullYear();
