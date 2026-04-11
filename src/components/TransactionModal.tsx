@@ -169,12 +169,17 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     }
   };
 
+  const renderAccountIcon = (acc: Account | undefined, size = 14) => {
+    if (!acc) return <Wallet size={size} />;
+    const iconStyle = { color: acc.color };
+    if (acc.type === 'CREDIT') return <CreditCard size={size} style={iconStyle} />;
+    if (acc.type === 'DEBIT') return <Landmark size={size} style={iconStyle} />;
+    return <Wallet size={size} style={iconStyle} />;
+  };
+
   const getAccountIcon = (id: string) => {
     const acc = (accounts || []).find(a => a.id === id);
-    if (!acc) return <Wallet size={14} />;
-    if (acc.type === 'CREDIT') return <CreditCard size={14} style={{ color: acc.color }} />;
-    if (acc.type === 'DEBIT') return <Landmark size={14} style={{ color: acc.color }} />;
-    return <Wallet size={14} style={{ color: acc.color }} />;
+    return renderAccountIcon(acc);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -365,7 +370,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                             className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
                           >
                             <span style={{ color: acc.color }}>
-                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                              {renderAccountIcon(acc)}
                             </span>
                             {acc.name}
                           </button>
@@ -402,7 +407,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                             className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
                           >
                             <span style={{ color: acc.color }}>
-                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                              {renderAccountIcon(acc)}
                             </span>
                             {acc.name}
                           </button>
@@ -441,7 +446,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                             className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
                           >
                             <span style={{ color: acc.color }}>
-                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                              {renderAccountIcon(acc)}
                             </span>
                             {acc.name}
                           </button>

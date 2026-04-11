@@ -85,7 +85,7 @@ export function Accounts() {
         </div>
       </div>
 
-      <h3 className="text-xl font-bold mb-6 tracking-wide ml-2">Suas Carteiras</h3>
+      <h3 className="text-xl font-bold mb-6 tracking-wide ml-2">Contas e Cartões</h3>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
         {accounts.map(acc => {
