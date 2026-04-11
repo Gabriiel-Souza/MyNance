@@ -1,5 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { X, Check, Calendar, DollarSign, Tag, CreditCard, Trash2, ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react';
+import { 
+  Plus, 
+  TrendingUp, 
+  Wallet, 
+  CreditCard, 
+  Landmark, 
+  Utensils, 
+  Car, 
+  ShoppingBag, 
+  ChevronRight,
+  ArrowUpRight,
+  ArrowDownRight
+} from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import type { Transaction, TransactionType } from '../types';
 
@@ -27,6 +38,11 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   const [repeatCount, setRepeatCount] = useState('12');
   const [totalAmount, setTotalAmount] = useState('');
 
+  // Dropdown States
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isDestAccountOpen, setIsDestAccountOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       if (editTransaction) {
@@ -53,6 +69,19 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
       }
     }
   }, [isOpen, editTransaction, categories, accounts]);
+
+  // Fecha dropdowns ao clicar fora
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      setTimeout(() => {
+        setIsAccountOpen(false);
+        setIsDestAccountOpen(false);
+        setIsCategoryOpen(false);
+      }, 0);
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -93,6 +122,22 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     }
   };
 
+  const renderCategoryIcon = (iconName: string, size = 14) => {
+    switch (iconName) {
+      case 'Utensils': return <Utensils size={size} />;
+      case 'Car': return <Car size={size} />;
+      case 'ShoppingBag': return <ShoppingBag size={size} />;
+      case 'Landmark': return <Landmark size={size} />;
+      default: return <Wallet size={size} />;
+    }
+  };
+
+  const getAccountIcon = (id: string) => {
+    const acc = (accounts || []).find(a => a.id === id);
+    if (!acc) return <Wallet size={14} />;
+    return acc.type === 'CREDIT' ? <CreditCard size={14} style={{ color: acc.color }} /> : <Wallet size={14} style={{ color: acc.color }} />;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid()) {
@@ -128,7 +173,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   const handleDelete = () => {
     if (editTransaction) {
       if (editTransaction.recurrenceId) {
-        if (window.confirm('Esta é uma transação recorrente. Deseja excluir este e TODOS os lançamentos futuros? (Cancelar para excluir apenas este)')) {
+        if (window.confirm('Esta é uma transação recorrente. Deseja excluir este e TODOS os lançamentos futuros?')) {
           removeTransaction(editTransaction.id, true);
         } else {
           removeTransaction(editTransaction.id, false);
@@ -141,14 +186,17 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   };
 
   const valid = isFormValid();
+  const selectedAccount = (accounts || []).find(a => a.id === accountId);
+  const selectedDestAccount = (accounts || []).find(a => a.id === destinationAccountId);
+  const selectedCategory = (categories || []).find(c => c.id === categoryId);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-surface-container-highest rounded-3xl p-8 border border-white/5 shadow-2xl z-10 max-h-[90vh] overflow-y-auto custom-scrollbar transition-all">
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 transition-colors text-gray-400 hover:text-white">
-          <X size={20} />
+      <div className="relative w-full max-w-md bg-[#1a1a19] rounded-3xl p-8 border border-white/5 shadow-2xl z-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 transition-colors text-gray-400 hover:text-white rotate-45">
+          <Plus size={20} />
         </button>
 
         <h2 className="text-xl font-bold mb-6 font-plus-jakarta text-white/90">
@@ -170,11 +218,11 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
               }`}
             >
               {t === 'OUT' ? (
-                <span className="flex items-center justify-center gap-1.5"><ArrowDownCircle size={14} /> Despesa</span>
+                <span className="flex items-center justify-center gap-1.5"><ArrowDownRight size={14} /> Despesa</span>
               ) : t === 'IN' ? (
-                <span className="flex items-center justify-center gap-1.5"><ArrowUpCircle size={14} /> Receita</span>
+                <span className="flex items-center justify-center gap-1.5"><ArrowUpRight size={14} /> Receita</span>
               ) : (
-                <span className="flex items-center justify-center gap-1.5"><RefreshCw size={14} /> Transf.</span>
+                <span className="flex items-center justify-center gap-1.5"><TrendingUp size={14} /> Transf.</span>
               )}
             </button>
           ))}
@@ -255,28 +303,74 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Conta
                   </label>
-                  <select 
-                    required
-                    value={accountId}
-                    onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                  </select>
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsAccountOpen(!isAccountOpen)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
+                    >
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5">
+                        {getAccountIcon(accountId)}
+                      </div>
+                      <span className="truncate">{selectedAccount?.name || 'Selecionar...'}</span>
+                      <ChevronRight size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform rotate-90 ${isAccountOpen ? 'rotate-[270deg]' : ''}`} />
+                    </button>
+                    
+                    {isAccountOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {(accounts || []).map(acc => (
+                          <button
+                            key={acc.id}
+                            type="button"
+                            onClick={() => { setAccountId(acc.id); setIsAccountOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: acc.color }}>
+                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                            </span>
+                            {acc.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Origem
                   </label>
-                  <select 
-                    required
-                    value={accountId}
-                    onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                  </select>
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsAccountOpen(!isAccountOpen)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
+                    >
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5">
+                        {getAccountIcon(accountId)}
+                      </div>
+                      <span className="truncate">{selectedAccount?.name || 'Selecionar...'}</span>
+                      <ChevronRight size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform rotate-90 ${isAccountOpen ? 'rotate-[270deg]' : ''}`} />
+                    </button>
+                    
+                    {isAccountOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {(accounts || []).map(acc => (
+                          <button
+                            key={acc.id}
+                            type="button"
+                            onClick={() => { setAccountId(acc.id); setIsAccountOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: acc.color }}>
+                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                            </span>
+                            {acc.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -285,32 +379,74 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Destino
                   </label>
-                  <select 
-                    required
-                    value={destinationAccountId}
-                    onChange={e => setDestinationAccountId(e.target.value)}
-                    className={`w-full bg-background border rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
-                  >
-                    <option value="" disabled>Escolha o destino...</option>
-                    {accounts.filter(acc => acc.id !== accountId).map(acc => (
-                      <option key={acc.id} value={acc.id}>{acc.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsDestAccountOpen(!isDestAccountOpen)}
+                      className={`w-full bg-background border rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2 ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
+                    >
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5">
+                        {getAccountIcon(destinationAccountId)}
+                      </div>
+                      <span className="truncate">{selectedDestAccount?.name || 'Escolha o destino...'}</span>
+                      <ChevronRight size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform rotate-90 ${isDestAccountOpen ? 'rotate-[270deg]' : ''}`} />
+                    </button>
+                    
+                    {isDestAccountOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {(accounts || []).filter(acc => acc.id !== accountId).map(acc => (
+                          <button
+                            key={acc.id}
+                            type="button"
+                            onClick={() => { setDestinationAccountId(acc.id); setIsDestAccountOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: acc.color }}>
+                              {acc.type === 'CREDIT' ? <CreditCard size={14} /> : <Wallet size={14} />}
+                            </span>
+                            {acc.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Categoria
                   </label>
-                  <select 
-                    required
-                    value={categoryId}
-                    onChange={e => setCategoryId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    <option value="" disabled>Buscar categoria...</option>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
-                  </select>
+                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
+                    >
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5" style={{ color: selectedCategory?.color || 'currentColor' }}>
+                        {renderCategoryIcon(selectedCategory?.icon || 'Wallet')}
+                      </div>
+                      <span className="truncate">{selectedCategory?.label || 'Buscar categoria...'}</span>
+                      <ChevronRight size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform rotate-90 ${isCategoryOpen ? 'rotate-[270deg]' : ''}`} />
+                    </button>
+                    
+                    {isCategoryOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-2xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                        {(categories || []).map(cat => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => { setCategoryId(cat.id); setIsCategoryOpen(false); }}
+                            className="w-full px-4 py-3 text-left hover:bg-white/5 flex items-center gap-3 text-xs font-bold transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <span style={{ color: cat.color }}>
+                              {renderCategoryIcon(cat.icon)}
+                            </span>
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -320,7 +456,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
             <div className="bg-surface-container-low/30 rounded-2xl p-4 border border-white/5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RefreshCw size={14} className={isRepetitive ? 'text-primary' : 'text-gray-500'} />
+                  <TrendingUp size={14} className={isRepetitive ? 'text-primary' : 'text-gray-500'} />
                   <span className={`text-[10px] font-bold uppercase tracking-widest ${isRepetitive ? 'text-white' : 'text-gray-500'}`}>Repetir Lançamento</span>
                 </div>
                 <button 
@@ -374,7 +510,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
               onClick={!valid ? triggerShake : undefined}
               className={`w-12 h-12 rounded-full bg-primary text-background self-center flex items-center justify-center shadow-lg transition-all ${!valid ? 'opacity-50 grayscale' : 'hover:scale-110 active:scale-95'} ${isShaking ? 'animate-shake' : ''}`}
             >
-              <Check size={24} strokeWidth={3} />
+              <Plus size={24} strokeWidth={3} />
             </button>
 
             {editTransaction && (
