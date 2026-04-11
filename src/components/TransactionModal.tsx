@@ -48,7 +48,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     if (isOpen) {
       if (editTransaction) {
         setType(editTransaction.type);
-        setAmount(Math.abs(editTransaction.amount).toString());
+        setAmount(formatCurrencyValue(Math.abs(editTransaction.amount).toFixed(2).replace('.', '')));
         setDesc(editTransaction.description);
         setDate(new Date(editTransaction.date).toISOString().split('T')[0]);
         setCategoryId(editTransaction.categoryId || '');
@@ -86,8 +86,53 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
 
   if (!isOpen) return null;
 
+  // Máscara Monetária (1234 -> 12,34)
+  function formatCurrencyValue(value: string) {
+    const cleanValue = value.replace(/\D/g, "");
+    if (!cleanValue) return "";
+    
+    const numberValue = parseFloat(cleanValue) / 100;
+    return numberValue.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  function parseCurrencyToNumber(value: string) {
+    if (!value) return 0;
+    return parseFloat(value.replace(/\./g, "").replace(",", "."));
+  }
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCurrencyValue(e.target.value);
+    setAmount(formatted);
+    
+    // Se for parcelado, atualiza o total
+    if (isRepetitive && repeatType === 'INSTALLMENT' && formatted) {
+      const val = parseCurrencyToNumber(formatted);
+      const count = Number(repeatCount);
+      if (count > 0) {
+        setTotalAmount(formatCurrencyValue((val * count * 100).toFixed(0)));
+      }
+    }
+  };
+
+  const handleTotalAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCurrencyValue(e.target.value);
+    setTotalAmount(formatted);
+    
+    if (isRepetitive && repeatType === 'INSTALLMENT' && formatted) {
+      const val = parseCurrencyToNumber(formatted);
+      const count = Number(repeatCount);
+      if (count > 0) {
+        setAmount(formatCurrencyValue(((val / count) * 100).toFixed(0)));
+      }
+    }
+  };
+
   const isFormValid = () => {
-    if (!amount || Number(amount) <= 0) return false;
+    const numAmount = parseCurrencyToNumber(amount);
+    if (!amount || numAmount <= 0) return false;
     if (!desc.trim()) return false;
     if (!accountId) return false;
     
@@ -103,22 +148,13 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
     setTimeout(() => setIsShaking(false), 400);
   };
 
-  const handleTotalChange = (value: string) => {
-    setTotalAmount(value);
-    if (isRepetitive && repeatType === 'INSTALLMENT' && value) {
-      const count = Number(repeatCount);
-      if (count > 0) {
-        setAmount((Number(value) / count).toFixed(2));
-      }
-    }
-  };
-
   const handleRepeatCountChange = (value: string) => {
     setRepeatCount(value);
     if (isRepetitive && repeatType === 'INSTALLMENT' && totalAmount) {
+      const val = parseCurrencyToNumber(totalAmount);
       const count = Number(value);
       if (count > 0) {
-        setAmount((Number(totalAmount) / count).toFixed(2));
+        setAmount(formatCurrencyValue(((val / count) * 100).toFixed(0)));
       }
     }
   };
@@ -146,9 +182,10 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
       return;
     }
 
+    const numAmount = parseCurrencyToNumber(amount);
     const txData = {
       description: desc,
-      amount: type === 'OUT' ? -Number(amount) : Number(amount),
+      amount: type === 'OUT' ? -numAmount : numAmount,
       date: new Date(date).toISOString(),
       type,
       categoryId: type === 'TRANSFER' ? '' : categoryId,
@@ -192,10 +229,10 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   const selectedCategory = (categories || []).find(c => c.id === categoryId);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-[#1a1a19] rounded-3xl p-8 border border-white/5 shadow-2xl z-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div className="relative w-full max-w-md bg-[#1a1a19] rounded-3xl p-8 border border-white/5 shadow-2xl z-10 my-auto">
         <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/5 transition-colors text-gray-400 hover:text-white rotate-45">
           <Plus size={20} />
         </button>
@@ -255,12 +292,11 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">R$</span>
                     <input 
-                      type="number"
-                      step="0.01"
+                      type="text"
                       value={totalAmount}
-                      onChange={e => handleTotalChange(e.target.value)}
-                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none border-dashed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      placeholder="Total"
+                      onChange={handleTotalAmountChange}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none placeholder:text-white/10"
+                      placeholder="0,00"
                     />
                   </div>
                 </div>
@@ -273,12 +309,11 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">R$</span>
                   <input 
-                    type="number"
-                    step="0.01"
+                    type="text"
                     required
                     value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    onChange={handleAmountChange}
+                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner placeholder:text-white/10"
                     placeholder="0,00"
                   />
                 </div>
@@ -307,7 +342,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button 
                       type="button"
-                      onClick={() => setIsAccountOpen(!isAccountOpen)}
+                      onClick={() => { setIsAccountOpen(!isAccountOpen); setIsCategoryOpen(false); setIsDestAccountOpen(false); }}
                       className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
                     >
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5">
@@ -344,7 +379,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button 
                       type="button"
-                      onClick={() => setIsAccountOpen(!isAccountOpen)}
+                      onClick={() => { setIsAccountOpen(!isAccountOpen); setIsCategoryOpen(false); setIsDestAccountOpen(false); }}
                       className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
                     >
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5">
@@ -383,13 +418,13 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button 
                       type="button"
-                      onClick={() => setIsDestAccountOpen(!isDestAccountOpen)}
+                      onClick={() => { setIsDestAccountOpen(!isDestAccountOpen); setIsAccountOpen(false); setIsCategoryOpen(false); }}
                       className={`w-full bg-background border rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2 ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
                     >
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5">
                         {getAccountIcon(destinationAccountId)}
                       </div>
-                      <span className="truncate">{selectedDestAccount?.name || 'Escolha o destino...'}</span>
+                      <span className="truncate">{selectedDestAccount?.name || 'Destino'}</span>
                       <ChevronRight size={14} className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-transform rotate-90 ${isDestAccountOpen ? 'rotate-[270deg]' : ''}`} />
                     </button>
                     
@@ -420,7 +455,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                     <button 
                       type="button"
-                      onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                      onClick={() => { setIsCategoryOpen(!isCategoryOpen); setIsAccountOpen(false); setIsDestAccountOpen(false); }}
                       className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-10 py-3 font-bold text-xs text-left focus:outline-none flex items-center gap-2"
                     >
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5" style={{ color: selectedCategory?.color || 'currentColor' }}>
@@ -475,14 +510,14 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     <button
                       type="button"
                       onClick={() => setRepeatType('FIXED')}
-                      className={`flex-1 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${repeatType === 'FIXED' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
+                      className={`flex-1 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${repeatType === 'FIXED' ? 'bg-primary text-background' : 'text-gray-500 bg-white/5'}`}
                     >
                       Fixo
                     </button>
                     <button
                       type="button"
                       onClick={() => setRepeatType('INSTALLMENT')}
-                      className={`flex-1 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${repeatType === 'INSTALLMENT' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
+                      className={`flex-1 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${repeatType === 'INSTALLMENT' ? 'bg-primary text-background' : 'text-gray-500 bg-white/5'}`}
                     >
                       Parcelado
                     </button>
