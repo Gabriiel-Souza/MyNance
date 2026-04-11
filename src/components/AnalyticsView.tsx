@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
-  AreaChart, Area
+  BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { formatCurrency } from '../utils/formatters';
-import { TrendingUp, TrendingDown, Target, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, ChevronRight, Calculator } from 'lucide-react';
 
 interface AnalyticsViewProps {
   selectedDate: Date;
@@ -14,12 +13,12 @@ interface AnalyticsViewProps {
 
 export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
   const { transactions, categories } = useFinanceStore(state => ({
-    transactions: state.transactions,
-    categories: state.categories,
+    transactions: state.transactions || [],
+    categories: state.categories || [],
   }));
 
-  const currentMonth = selectedDate.getMonth();
-  const currentYear = selectedDate.getFullYear();
+  const currentMonth = selectedDate?.getMonth() ?? new Date().getMonth();
+  const currentYear = selectedDate?.getFullYear() ?? new Date().getFullYear();
 
   const currentMonthTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -30,13 +29,14 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
 
   // Dados para Gráfico de Pizza (Categorias)
   const categoryData = useMemo(() => {
-    return categories.map(cat => ({
+    const data = categories.map(cat => ({
       name: cat.label,
       value: currentMonthTransactions
         .filter(t => t.categoryId === cat.id && t.type === 'OUT')
         .reduce((sum, t) => sum + Math.abs(t.amount), 0),
       color: cat.color
     })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+    return data;
   }, [categories, currentMonthTransactions]);
 
   // Dados para Gráfico de Barras (Últimos 6 meses)
@@ -65,6 +65,16 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
   const totalOut = currentMonthTransactions.filter(t => t.type === 'OUT').reduce((s, t) => s + Math.abs(t.amount), 0);
   const savings = totalIn - totalOut;
   const savingsRate = totalIn > 0 ? (savings / totalIn) * 100 : 0;
+  const dailyAverage = totalOut / 30;
+
+  if (transactions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 bg-surface-variant/10 rounded-[2.5rem] border border-dashed border-white/10">
+        <Activity size={48} className="text-gray-600 mb-4" />
+        <p className="text-gray-500 font-medium">Aguardando dados para gerar insights...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -73,11 +83,11 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
         <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <TrendingUp size={18} />
+              <TrendingUp size={16} />
             </div>
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Taxa de Economia</span>
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Economia Real</span>
           </div>
-          <p className="text-2xl font-bold text-white">{savingsRate.toFixed(1)}%</p>
+          <p className="text-2xl font-bold text-white">{Math.max(0, savingsRate).toFixed(1)}%</p>
           <div className="mt-2 w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
             <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${Math.max(0, Math.min(100, savingsRate))}%` }} />
           </div>
@@ -86,36 +96,36 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
         <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
-              <Zap size={18} />
+              <Activity size={16} />
             </div>
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Gasto Diário Médio</span>
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Média Diária</span>
           </div>
-          <p className="text-2xl font-bold text-white">{formatCurrency(totalOut / 30)}</p>
-          <p className="text-[10px] text-gray-400 mt-1">Baseado em 30 dias</p>
+          <p className="text-2xl font-bold text-white">{formatCurrency(dailyAverage)}</p>
+          <p className="text-[10px] text-gray-400 mt-1">Este mês</p>
         </div>
 
         <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary">
-              <TrendingDown size={18} />
+              <TrendingDown size={16} />
             </div>
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Maior Categoria</span>
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Foco de Gastos</span>
           </div>
-          <p className="text-2xl font-bold text-white truncate">{categoryData[0]?.name || 'N/A'}</p>
-          <p className="text-[10px] text-gray-400 mt-1">{categoryData[0] ? formatCurrency(categoryData[0].value) : 'Sem gastos'}</p>
+          <p className="text-2xl font-bold text-white truncate">{categoryData.length > 0 ? categoryData[0].name : 'Nenhum'}</p>
+          <p className="text-[10px] text-gray-400 mt-1">{categoryData.length > 0 ? formatCurrency(categoryData[0].value) : 'Sem gastos'}</p>
         </div>
 
         <div className="bg-surface-variant/20 backdrop-blur-md p-5 rounded-3xl border border-white/5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
-              <Target size={18} />
+              <Calculator size={16} />
             </div>
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Balanço do Mês</span>
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Balanço Final</span>
           </div>
           <p className={`text-2xl font-bold ${savings >= 0 ? 'text-primary' : 'text-tertiary'}`}>
             {formatCurrency(savings)}
           </p>
-          <p className="text-[10px] text-gray-400 mt-1">{savings >= 0 ? 'Superávit' : 'Déficit'}</p>
+          <p className="text-[10px] text-gray-400 mt-1">{savings >= 0 ? 'Positivo' : 'Negativo'}</p>
         </div>
       </div>
 
@@ -125,7 +135,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h3 className="text-xl font-bold text-white">Fluxo de Caixa</h3>
-              <p className="text-xs text-gray-500 mt-1">Comparativo de entradas e saídas (6 meses)</p>
+              <p className="text-xs text-gray-500 mt-1">Comparativo de entradas e saídas</p>
             </div>
           </div>
           <div className="h-[300px] w-full">
@@ -148,8 +158,8 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
         {/* Gráfico de Pizza Detalhado */}
         <div className="bg-surface-variant/30 backdrop-blur-lg p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-white">Distribuição de Gastos</h3>
-            <p className="text-xs text-gray-500 mt-1">Onde você gastou mais este mês</p>
+            <h3 className="text-xl font-bold text-white">Distribuição por Categoria</h3>
+            <p className="text-xs text-gray-500 mt-1">Maiores impactos no seu orçamento</p>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="h-[240px] w-full md:w-1/2">
