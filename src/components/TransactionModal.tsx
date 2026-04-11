@@ -181,44 +181,44 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-6">
+            {isRepetitive && repeatType === 'INSTALLMENT' && (
+              <div className="relative">
+                <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
+                  <DollarSign size={14} className="text-secondary" /> Valor Total da Compra
+                </label>
+                <div className="relative">
+                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-500">R$</span>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    value={totalAmount}
+                    onChange={e => handleTotalChange(e.target.value)}
+                    className="w-full bg-background border border-white/5 rounded-2xl pl-16 pr-6 py-6 text-4xl font-bold focus:outline-none border-dashed border-white/10"
+                    placeholder="Total"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="relative">
               <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
-                <DollarSign size={14} className="text-primary" /> {isRepetitive && repeatType === 'INSTALLMENT' ? 'Valor da Parcela' : 'Valor'}
+                <DollarSign size={14} className="text-primary" /> {isRepetitive && repeatType === 'INSTALLMENT' ? 'Valor de Cada Parcela' : 'Valor'}
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-500">R$</span>
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-500">R$</span>
                 <input 
                   type="number"
                   step="0.01"
                   required
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
-                  className="w-full bg-background border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-2xl font-bold focus:outline-none focus:border-primary transition-all"
+                  className={`w-full bg-background border border-white/5 rounded-2xl pl-16 pr-6 py-6 text-4xl font-bold focus:outline-none focus:border-primary transition-all ${isRepetitive && repeatType === 'INSTALLMENT' ? 'bg-surface-variant/10' : 'shadow-2xl'}`}
                   placeholder="0,00"
                   autoFocus={!editTransaction}
                 />
               </div>
             </div>
-
-            {isRepetitive && repeatType === 'INSTALLMENT' && (
-              <div className="relative">
-                <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
-                  Valor Total
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-500">R$</span>
-                  <input 
-                    type="number"
-                    step="0.01"
-                    value={totalAmount}
-                    onChange={e => handleTotalChange(e.target.value)}
-                    className="w-full bg-background border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-2xl font-bold focus:outline-none border-dashed border-white/10"
-                    placeholder="Total"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           <div>
