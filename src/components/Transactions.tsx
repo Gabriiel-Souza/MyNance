@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { Wallet, Utensils, Car, ShoppingBag, CreditCard, Search, Plus, ChevronLeft, ChevronRight, ArrowUpCircle, ArrowDownCircle, Landmark } from 'lucide-react';
 import { TransactionModal } from './TransactionModal';
+import { formatCurrency } from '../utils/formatters';
 import type { Transaction } from '../types';
 
 const MONTHS = [
@@ -112,7 +113,7 @@ export function Transactions() {
             <Landmark size={14} className="text-primary" /> Patrimônio Líquido Total
           </p>
           <p className="text-4xl font-bold text-white relative z-10" style={{ fontFamily: 'var(--font-jakarta)' }}>
-            R$ {totalBalance.toFixed(2)}
+            {formatCurrency(totalBalance)}
           </p>
         </div>
 
@@ -123,7 +124,7 @@ export function Transactions() {
             Resultado em {monthLabel}
           </p>
           <p className={`text-4xl font-bold relative z-10 ${monthlyResult >= 0 ? 'text-primary' : 'text-tertiary'}`} style={{ fontFamily: 'var(--font-jakarta)' }}>
-            {monthlyResult >= 0 ? '+' : '-'} R$ {Math.abs(monthlyResult).toFixed(2)}
+            {formatCurrency(monthlyResult)}
           </p>
         </div>
       </div>
@@ -157,7 +158,7 @@ export function Transactions() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className={`text-lg md:text-2xl font-bold ${tx.amount > 0 ? 'text-primary' : 'text-white'}`} style={{ fontFamily: 'var(--font-jakarta)'}}>
-                          {tx.amount > 0 ? '+' : ''}R$ {Math.abs(tx.amount).toFixed(2).replace('.', ',')}
+                          {formatCurrency(tx.amount)}
                         </p>
                       </div>
                     </div>

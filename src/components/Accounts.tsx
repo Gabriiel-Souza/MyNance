@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { Wallet, CreditCard, Landmark, Plus } from 'lucide-react';
 import { AccountModal } from './AccountModal';
+import { formatCurrency } from '../utils/formatters';
 import type { Account } from '../types';
 
 export function Accounts() {
@@ -68,7 +69,7 @@ export function Accounts() {
           
           <h3 className="text-gray-400 text-sm font-medium mb-2 tracking-wide">Patrimônio Líquido Total</h3>
           <p className="text-5xl font-bold tracking-tight text-white mb-2" style={{ fontFamily: 'var(--font-jakarta)' }}>
-            R$ {totalBalance.toFixed(2)}
+            {formatCurrency(totalBalance)}
           </p>
           <div className="flex items-center gap-2 text-primary font-medium text-sm">
             <Plus size={16} /> 1.2% este mês
@@ -78,7 +79,7 @@ export function Accounts() {
         <div className="relative overflow-hidden bg-surface-container-low/60 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl">
           <h3 className="text-gray-400 text-sm font-medium mb-2 tracking-wide">Limite de Crédito Disponível</h3>
           <p className="text-5xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)' }}>
-            R$ {totalLimitAvailable.toFixed(2)}
+            {formatCurrency(totalLimitAvailable)}
           </p>
           <p className="text-gray-500 text-sm mt-2">Somado entre todos os seus cartões</p>
         </div>
@@ -117,14 +118,14 @@ export function Accounts() {
               <div>
                 <p className="text-gray-400 text-xs mb-1 font-medium italic">Saldo atual</p>
                 <p className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                  R$ {balance.toFixed(2)}
+                  {formatCurrency(balance)}
                 </p>
                 
                 {isCredit && acc.limit && (
                   <div className="mt-6">
                     <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-tighter">
                       <span>Uso do Limite</span>
-                      <span>R$ {acc.limit.toFixed(0)} totais</span>
+                      <span>{formatCurrency(acc.limit || 0)} totais</span>
                     </div>
                     <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
                       <div 

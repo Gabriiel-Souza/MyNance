@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, L
 import { Utensils, Car, ShoppingBag, CreditCard, Wallet, ArrowUpRight, ArrowDownRight, Plus, ChevronLeft, ChevronRight, Landmark } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { TransactionModal } from './TransactionModal';
+import { formatCurrency } from '../utils/formatters';
 
 const renderIcon = (iconName: string) => {
   switch (iconName) {
@@ -108,7 +109,7 @@ export function Dashboard() {
         {/* Global Balance Card */}
         <div className="bg-surface-variant/40 backdrop-blur-xl px-8 py-4 rounded-3xl border border-white/5 shadow-2xl flex flex-col items-end">
           <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Patrimônio Líquido</span>
-          <span className="text-3xl font-bold text-primary" style={{ fontFamily: 'var(--font-jakarta)' }}>R$ {totalBalance.toFixed(2)}</span>
+          <span className="text-3xl font-bold text-primary" style={{ fontFamily: 'var(--font-jakarta)' }}>{formatCurrency(totalBalance)}</span>
         </div>
       </header>
 
@@ -127,7 +128,7 @@ export function Dashboard() {
               </div>
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">{acc.name}</p>
-                <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-jakarta)' }}>R$ {bal.toFixed(2)}</p>
+                <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-jakarta)' }}>{formatCurrency(bal)}</p>
               </div>
             </div>
           )
@@ -138,15 +139,15 @@ export function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 relative z-10">
         <div className="bg-primary/5 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center border border-primary/10 transition-transform hover:scale-[1.02]">
           <h3 className="text-primary text-[10px] mb-2 font-bold tracking-widest uppercase">Entradas no Mês</h3>
-          <p className="text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>+ R$ {monthRevenue.toFixed(2)}</p>
+          <p className="text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>{formatCurrency(monthRevenue)}</p>
         </div>
         <div className="bg-tertiary/5 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center border border-tertiary/10 transition-transform hover:scale-[1.02]">
           <h3 className="text-tertiary text-[10px] mb-2 font-bold tracking-widest uppercase">Saídas no Mês</h3>
-          <p className="text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>- R$ {monthExpenses.toFixed(2)}</p>
+          <p className="text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ fontFamily: 'var(--font-jakarta)'}}>{formatCurrency(-monthExpenses)}</p>
         </div>
         <div className="bg-surface-variant/40 backdrop-blur-xl p-6 rounded-3xl flex flex-col justify-center border border-white/5 shadow-2xl transition-transform hover:scale-[1.02]">
           <h3 className="text-gray-400 text-[10px] mb-2 font-bold tracking-widest uppercase">Crédito Utilizado</h3>
-          <p className="text-3xl md:text-4xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)'}}>R$ {openFaturas.toFixed(2)}</p>
+          <p className="text-3xl md:text-4xl font-bold tracking-tight text-secondary" style={{ fontFamily: 'var(--font-jakarta)'}}>{formatCurrency(openFaturas)}</p>
         </div>
       </div>
 
@@ -215,7 +216,7 @@ export function Dashboard() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className={`text-base md:text-xl font-bold ${tx.amount > 0 ? 'text-primary' : 'text-white'}`} style={{ fontFamily: 'var(--font-jakarta)'}}>
-                    {tx.amount > 0 ? '+' : ''}R$ {Math.abs(tx.amount).toFixed(2).replace('.', ',')}
+                    {formatCurrency(tx.amount)}
                   </p>
                 </div>
               </div>

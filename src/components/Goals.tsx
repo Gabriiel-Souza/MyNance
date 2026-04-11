@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Target, TrendingUp, Calendar, Plus, ChevronRight, Zap } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { formatCurrency } from '../utils/formatters';
 import { GoalModal } from './GoalModal';
 import type { Goal } from '../types';
 
@@ -48,14 +49,14 @@ export const Goals: React.FC = () => {
               </span>
               <div className="flex items-baseline gap-2 mb-2">
                 <span className="text-5xl font-bold font-plus-jakarta">
-                  R$ {totalCurrent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {formatCurrency(totalCurrent)}
                 </span>
                 <span className="text-primary font-inter text-sm flex items-center gap-1">
                   <TrendingUp size={16} /> +12%
                 </span>
               </div>
               <p className="text-on-surface-variant font-inter text-sm">
-                Sua meta global é de R$ {totalTarget.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                Sua meta global é de {formatCurrency(totalTarget)}
               </p>
             </div>
 
@@ -132,7 +133,7 @@ export const Goals: React.FC = () => {
                     <Calendar size={12} /> {daysLeft > 0 ? `${daysLeft} dias restantes` : 'Prazo encerrado'}
                   </span>
                   <span className="text-lg font-bold font-plus-jakarta">
-                    R$ {goal.targetAmount.toLocaleString('pt-BR')}
+                    {formatCurrency(goal.targetAmount)}
                   </span>
                 </div>
               </div>
@@ -142,7 +143,7 @@ export const Goals: React.FC = () => {
               {/* Progress Bar Editorial */}
               <div className="mb-4">
                 <div className="flex justify-between text-xs font-inter mb-2">
-                  <span className="text-on-surface-variant">R$ {goal.currentAmount.toLocaleString('pt-BR')} acumulados</span>
+                  <span className="text-on-surface-variant">{formatCurrency(goal.currentAmount)} acumulados</span>
                   <span className="font-bold">{Math.round(progress)}%</span>
                 </div>
                 <div className="h-2 bg-surface-container-highest rounded-full overflow-hidden">
