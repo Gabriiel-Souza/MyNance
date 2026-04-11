@@ -258,7 +258,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                       step="0.01"
                       value={totalAmount}
                       onChange={e => handleTotalChange(e.target.value)}
-                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none border-dashed"
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none border-dashed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       placeholder="Total"
                     />
                   </div>
@@ -277,7 +277,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     required
                     value={amount}
                     onChange={e => setAmount(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner"
+                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:outline-none focus:border-primary transition-all shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0,00"
                   />
                 </div>
