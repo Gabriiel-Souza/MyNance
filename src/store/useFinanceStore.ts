@@ -110,10 +110,14 @@ export const useFinanceStore = create<FinanceState>()(
         accounts: state.accounts.map(a => a.id === id ? { ...a, ...acc } : a)
       })),
 
-      deleteAccount: (id) => set((state) => ({
-        accounts: state.accounts.filter(a => a.id !== id),
-        transactions: state.transactions.filter(t => t.accountId !== id && t.destinationAccountId !== id)
-      })),
+      deleteAccount: (id) => set((state) => {
+        if (id === '2') return state; // Impede a exclusão da conta fixa "Dinheiro/Carteira"
+        
+        return {
+          accounts: state.accounts.filter(a => a.id !== id),
+          transactions: state.transactions.filter(t => t.accountId !== id && t.destinationAccountId !== id)
+        };
+      }),
 
       addCategory: (cat) => set((state) => ({
         categories: [...state.categories, { ...cat, id: crypto.randomUUID() }]

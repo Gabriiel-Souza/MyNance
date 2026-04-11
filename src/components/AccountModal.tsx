@@ -16,7 +16,6 @@ const PRESET_COLORS = [
 const ACCOUNT_TYPES: { label: string; value: AccountType; icon: any }[] = [
   { label: 'Corrente / Débito', value: 'DEBIT', icon: Landmark },
   { label: 'Cartão de Crédito', value: 'CREDIT', icon: CreditCard },
-  { label: 'Dinheiro / Carteira', value: 'CASH', icon: Wallet },
 ];
 
 export function AccountModal({ isOpen, onClose, editAccount }: ModalProps) {

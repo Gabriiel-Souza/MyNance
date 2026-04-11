@@ -172,7 +172,9 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   const getAccountIcon = (id: string) => {
     const acc = (accounts || []).find(a => a.id === id);
     if (!acc) return <Wallet size={14} />;
-    return acc.type === 'CREDIT' ? <CreditCard size={14} style={{ color: acc.color }} /> : <Wallet size={14} style={{ color: acc.color }} />;
+    if (acc.type === 'CREDIT') return <CreditCard size={14} style={{ color: acc.color }} />;
+    if (acc.type === 'DEBIT') return <Landmark size={14} style={{ color: acc.color }} />;
+    return <Wallet size={14} style={{ color: acc.color }} />;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -328,6 +330,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   required
                   value={date}
                   onChange={e => setDate(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
                   className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
                 />
               </div>
