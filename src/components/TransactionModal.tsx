@@ -131,8 +131,8 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+          <div className={type === 'TRANSFER' ? 'flex flex-col gap-6' : 'grid grid-cols-2 gap-4'}>
+            <div className={type === 'TRANSFER' ? 'w-full' : ''}>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                 <Calendar size={14} /> Data
               </label>
@@ -143,36 +143,54 @@ export function TransactionModal({ isOpen, onClose }: ModalProps) {
                 className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] [color-scheme:dark]"
               />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                <CreditCard size={14} /> Conta
-              </label>
-              <select 
-                value={accountId}
-                onChange={e => setAccountId(e.target.value)}
-                className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer"
-              >
-                {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-              </select>
-            </div>
+
+            {type !== 'TRANSFER' && (
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <CreditCard size={14} /> Conta
+                </label>
+                <select 
+                  value={accountId}
+                  onChange={e => setAccountId(e.target.value)}
+                  className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer"
+                >
+                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                </select>
+              </div>
+            )}
           </div>
 
           {type === 'TRANSFER' && (
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                <CreditCard size={14} /> Conta de Destino
-              </label>
-              <select 
-                value={destinationAccountId}
-                onChange={e => setDestinationAccountId(e.target.value)}
-                className={`w-full bg-background border rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-surface-container-high'}`}
-              >
-                {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-              </select>
-              {accountId === destinationAccountId && (
-                <p className="text-tertiary text-[10px] font-bold uppercase mt-2 tracking-widest">As contas devem ser diferentes</p>
-              )}
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <CreditCard size={14} /> Conta de Origem
+                </label>
+                <select 
+                  value={accountId}
+                  onChange={e => setAccountId(e.target.value)}
+                  className="w-full bg-background border border-surface-container-high rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer"
+                >
+                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <CreditCard size={14} /> Conta de Destino
+                </label>
+                <select 
+                  value={destinationAccountId}
+                  onChange={e => setDestinationAccountId(e.target.value)}
+                  className={`w-full bg-background border rounded-2xl px-5 py-4 font-medium focus:outline-none focus:border-primary transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary shadow-[0_0_15px_rgba(255,119,101,0.2)]' : 'border-surface-container-high'}`}
+                >
+                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                </select>
+                {accountId === destinationAccountId && (
+                  <p className="text-tertiary text-[10px] font-bold uppercase mt-2 tracking-widest animate-pulse">As contas devem ser diferentes</p>
+                )}
+              </div>
+            </>
           )}
 
           {type !== 'TRANSFER' && (
