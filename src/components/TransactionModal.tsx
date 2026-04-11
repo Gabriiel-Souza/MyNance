@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Calendar, DollarSign, Tag, CreditCard, Trash2, ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react';
+import { X, Check, Calendar, DollarSign, Tag, CreditCard, Trash2, ArrowUpCircle, ArrowDownCircle, RefreshCw, Wallet, Utensils, Car, ShoppingBag, Landmark, ChevronDown } from 'lucide-react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import type { Transaction, TransactionType } from '../types';
 
@@ -142,6 +142,28 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
 
   const valid = isFormValid();
 
+  const renderCategoryIcon = (iconName: string, size = 14) => {
+    switch (iconName) {
+      case 'Utensils': return <Utensils size={size} />;
+      case 'Car': return <Car size={size} />;
+      case 'ShoppingBag': return <ShoppingBag size={size} />;
+      case 'CreditCard': return <CreditCard size={size} />;
+      case 'Landmark': return <Landmark size={size} />;
+      default: return <Wallet size={size} />;
+    }
+  };
+
+  const getAccountIcon = (accountId: string) => {
+    const acc = accounts.find(a => a.id === accountId);
+    if (!acc) return <Wallet size={14} />;
+    switch (acc.type) {
+      case 'CREDIT': return <CreditCard size={14} style={{ color: acc.color }} />;
+      default: return <Wallet size={14} style={{ color: acc.color }} />;
+    }
+  };
+
+  const selectedCategory = categories.find(c => c.id === categoryId);
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
@@ -255,28 +277,40 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Conta
                   </label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary opacity-50 flex items-center justify-center w-5">
+                    {getAccountIcon(accountId)}
+                  </div>
                   <select 
                     required
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
                   >
                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
                   </select>
+                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                 </div>
-              ) : (
+              </div>
+            ) : (
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Origem
                   </label>
-                  <select 
-                    required
-                    value={accountId}
-                    onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                  </select>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary opacity-50 flex items-center justify-center w-5">
+                      {getAccountIcon(accountId)}
+                    </div>
+                    <select 
+                      required
+                      value={accountId}
+                      onChange={e => setAccountId(e.target.value)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                    >
+                      {accounts.map(acc => <option key={acc.id} valueAcc={acc.id}>{acc.name}</option>)}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                  </div>
                 </div>
               )}
 
@@ -285,32 +319,44 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Destino
                   </label>
-                  <select 
-                    required
-                    value={destinationAccountId}
-                    onChange={e => setDestinationAccountId(e.target.value)}
-                    className={`w-full bg-background border rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
-                  >
-                    <option value="" disabled>Escolha o destino...</option>
-                    {accounts.filter(acc => acc.id !== accountId).map(acc => (
-                      <option key={acc.id} value={acc.id}>{acc.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary opacity-50 flex items-center justify-center w-5">
+                      {getAccountIcon(destinationAccountId)}
+                    </div>
+                    <select 
+                      required
+                      value={destinationAccountId}
+                      onChange={e => setDestinationAccountId(e.target.value)}
+                      className={`w-full bg-background border rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
+                    >
+                      <option value="" disabled>Escolha o destino...</option>
+                      {accounts.filter(acc => acc.id !== accountId).map(acc => (
+                        <option key={acc.id} value={acc.id}>{acc.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                  </div>
                 </div>
               ) : (
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
                     Categoria
                   </label>
-                  <select 
-                    required
-                    value={categoryId}
-                    onChange={e => setCategoryId(e.target.value)}
-                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                  >
-                    <option value="" disabled>Buscar categoria...</option>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
-                  </select>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 flex items-center justify-center w-5" style={{ color: selectedCategory?.color }}>
+                      {renderCategoryIcon(selectedCategory?.icon || 'Wallet')}
+                    </div>
+                    <select 
+                      required
+                      value={categoryId}
+                      onChange={e => setCategoryId(e.target.value)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Buscar categoria...</option>
+                      {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                  </div>
                 </div>
               )}
             </div>
