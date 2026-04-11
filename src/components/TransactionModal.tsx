@@ -151,11 +151,11 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
           <X size={20} />
         </button>
 
-        <h2 className="text-2xl font-bold mb-8 font-plus-jakarta">
+        <h2 className="text-xl font-bold mb-6 font-plus-jakarta text-white/90">
           {editTransaction ? 'Editar Transação' : 'Nova Transação'}
         </h2>
 
-        <div className="flex gap-2 mb-8 bg-surface-container-low p-1.5 rounded-2xl border border-white/5">
+        <div className="flex gap-2 mb-6 bg-surface-container-low p-1 rounded-xl border border-white/5">
           {(['OUT', 'IN', 'TRANSFER'] as TransactionType[]).map((t) => (
             <button
               key={t}
@@ -181,229 +181,209 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-6">
-            {isRepetitive && repeatType === 'INSTALLMENT' && (
-              <div className="relative">
-                <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
-                  <DollarSign size={14} className="text-secondary" /> Valor Total da Compra
-                </label>
-                <div className="relative">
-                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-500">R$</span>
-                  <input 
-                    type="number"
-                    step="0.01"
-                    value={totalAmount}
-                    onChange={e => handleTotalChange(e.target.value)}
-                    className="w-full bg-background border border-white/5 rounded-2xl pl-16 pr-6 py-6 text-4xl font-bold focus:outline-none border-dashed border-white/10"
-                    placeholder="Total"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="relative">
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 ml-2">
-                <DollarSign size={14} className="text-primary" /> {isRepetitive && repeatType === 'INSTALLMENT' ? 'Valor de Cada Parcela' : 'Valor'}
-              </label>
-              <div className="relative">
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-500">R$</span>
-                <input 
-                  type="number"
-                  step="0.01"
-                  required
-                  value={amount}
-                  onChange={e => setAmount(e.target.value)}
-                  className={`w-full bg-background border border-white/5 rounded-2xl pl-16 pr-6 py-6 text-4xl font-bold focus:outline-none focus:border-primary transition-all ${isRepetitive && repeatType === 'INSTALLMENT' ? 'bg-surface-variant/10' : 'shadow-2xl'}`}
-                  placeholder="0,00"
-                  autoFocus={!editTransaction}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
-              Descrição
-            </label>
-            <input 
-              type="text"
-              required
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
-              className="w-full bg-background border border-white/5 rounded-2xl px-6 py-4 font-bold text-lg focus:outline-none focus:border-primary transition-all"
-              placeholder="Ex: Almoço, Netflix, Salário..."
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <div>
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
-                <Calendar size={14} /> Data
+              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                Descrição
               </label>
               <input 
-                type="date"
+                type="text"
                 required
-                value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full bg-background border border-white/5 rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-medium text-base focus:outline-none focus:border-primary transition-all placeholder:text-white/20"
+                placeholder="Ex: Almoço, Netflix, Salário..."
+                autoFocus={!editTransaction}
               />
             </div>
 
-            {type !== 'TRANSFER' ? (
+            <div className="grid grid-cols-2 gap-4">
+              {isRepetitive && repeatType === 'INSTALLMENT' && (
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                    Valor Total da Compra
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">R$</span>
+                    <input 
+                      type="number"
+                      step="0.01"
+                      value={totalAmount}
+                      onChange={e => handleTotalChange(e.target.value)}
+                      className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-bold focus:outline-none border-dashed"
+                      placeholder="Total"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
-                  <CreditCard size={14} /> Conta
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                  {isRepetitive && repeatType === 'INSTALLMENT' ? 'Val. Parcela' : 'Valor'}
                 </label>
-                <select 
-                  required
-                  value={accountId}
-                  onChange={e => setAccountId(e.target.value)}
-                  className="w-full bg-background border border-white/5 rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary appearance-none cursor-pointer"
-                >
-                  {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                </select>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">R$</span>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    required
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
+                    className="w-full bg-background border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-bold focus:outline-none focus:border-primary transition-all shadow-inner"
+                    placeholder="0,00"
+                  />
+                </div>
               </div>
-            ) : (
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                  Data
+                </label>
+                <input 
+                  type="date"
+                  required
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary transition-all [color-scheme:dark]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {type !== 'TRANSFER' ? (
                 <div>
-                  <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
-                    <CreditCard size={14} /> Origem
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                    Conta
                   </label>
                   <select 
                     required
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="w-full bg-background border border-white/5 rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
                   >
                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
                   </select>
                 </div>
-            )}
-          </div>
+              ) : (
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                    Origem
+                  </label>
+                  <select 
+                    required
+                    value={accountId}
+                    onChange={e => setAccountId(e.target.value)}
+                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  >
+                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                  </select>
+                </div>
+              )}
 
-          {type === 'TRANSFER' && (
-            <div>
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2 ml-2">
-                <RefreshCw size={14} /> Destino
-              </label>
-              <select 
-                required
-                value={destinationAccountId}
-                onChange={e => setDestinationAccountId(e.target.value)}
-                className={`w-full bg-background border rounded-2xl px-5 py-4 font-bold text-sm focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/5'}`}
-              >
-                <option value="" disabled>Escolha o destino...</option>
-                {accounts.filter(acc => acc.id !== accountId).map(acc => (
-                  <option key={acc.id} value={acc.id}>{acc.name}</option>
-                ))}
-              </select>
-              {accountId === destinationAccountId && (
-                <p className="text-tertiary text-[10px] font-black uppercase mt-2 ml-2 tracking-widest">Contas devem ser diferentes</p>
+              {type === 'TRANSFER' ? (
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                    Destino
+                  </label>
+                  <select 
+                    required
+                    value={destinationAccountId}
+                    onChange={e => setDestinationAccountId(e.target.value)}
+                    className={`w-full bg-background border rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer ${accountId === destinationAccountId ? 'border-tertiary' : 'border-white/10'}`}
+                  >
+                    <option value="" disabled>Escolha o destino...</option>
+                    {accounts.filter(acc => acc.id !== accountId).map(acc => (
+                      <option key={acc.id} value={acc.id}>{acc.name}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">
+                    Categoria
+                  </label>
+                  <select 
+                    required
+                    value={categoryId}
+                    onChange={e => setCategoryId(e.target.value)}
+                    className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Buscar categoria...</option>
+                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
+                  </select>
+                </div>
               )}
             </div>
-          )}
-
-          {type !== 'TRANSFER' && (
-            <div>
-              <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2 ml-2">
-                <Tag size={14} /> Categoria
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setCategoryId(cat.id)}
-                    className={`px-4 py-2.5 rounded-full text-[10px] font-black transition-all border uppercase tracking-wider ${
-                      categoryId === cat.id 
-                        ? 'border-transparent text-background shadow-lg' 
-                        : 'border-white/5 bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300'
-                    }`}
-                    style={{ 
-                      backgroundColor: categoryId === cat.id ? cat.color : undefined,
-                      boxShadow: categoryId === cat.id ? `0 0 15px ${cat.color}60` : undefined
-                    }}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
 
           {!editTransaction && type !== 'TRANSFER' && (
-            <div className="bg-surface-container-low/50 rounded-[2rem] p-6 border border-white/5">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-surface-container-low/30 rounded-2xl p-4 border border-white/5">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RefreshCw size={16} className={isRepetitive ? 'text-primary' : 'text-gray-500'} />
-                  <span className={`text-xs font-black uppercase tracking-widest ${isRepetitive ? 'text-white' : 'text-gray-500'}`}>Repetir Lançamento</span>
+                  <RefreshCw size={14} className={isRepetitive ? 'text-primary' : 'text-gray-500'} />
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${isRepetitive ? 'text-white' : 'text-gray-500'}`}>Repetir Lançamento</span>
                 </div>
                 <button 
                   type="button"
                   onClick={() => setIsRepetitive(!isRepetitive)}
-                  className={`w-12 h-6 rounded-full relative transition-all ${isRepetitive ? 'bg-primary' : 'bg-white/10'}`}
+                  className={`w-10 h-5 rounded-full relative transition-all ${isRepetitive ? 'bg-primary' : 'bg-white/10'}`}
                 >
-                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isRepetitive ? 'left-7' : 'left-1'}`} />
+                  <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isRepetitive ? 'left-6' : 'left-1'}`} />
                 </button>
               </div>
 
               {isRepetitive && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setRepeatType('FIXED')}
-                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${repeatType === 'FIXED' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
+                      className={`flex-1 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${repeatType === 'FIXED' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
                     >
-                      Lançamento Fixo
+                      Fixo
                     </button>
                     <button
                       type="button"
                       onClick={() => setRepeatType('INSTALLMENT')}
-                      className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${repeatType === 'INSTALLMENT' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
+                      className={`flex-1 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${repeatType === 'INSTALLMENT' ? 'bg-white/10 text-white' : 'text-gray-500'}`}
                     >
                       Parcelado
                     </button>
                   </div>
 
                   {repeatType === 'INSTALLMENT' && (
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs font-bold text-gray-400">Parcelas:</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">Parcelas:</span>
                       <input 
                         type="number"
                         min="2"
                         value={repeatCount}
                         onChange={e => handleRepeatCountChange(e.target.value)}
-                        className="w-20 bg-background border border-white/5 rounded-xl px-3 py-2 text-center font-bold focus:outline-none focus:border-primary"
+                        className="w-16 bg-background border border-white/10 rounded-lg px-2 py-1 text-center font-bold text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                   )}
-
-                  <p className="text-[10px] text-gray-500 italic">
-                    {repeatType === 'FIXED' 
-                      ? '* O sistema gerará este lançamento mensalmente pelos próximos 2 anos.' 
-                      : `* Serão criados ${repeatCount} lançamentos sequenciais nos próximos meses.`}
-                  </p>
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex flex-col gap-3 pt-4">
+          <div className="flex flex-col gap-3 pt-2">
             <button 
               type="submit"
               onClick={!valid ? triggerShake : undefined}
-              className={`w-full bg-primary text-background py-5 font-black rounded-2xl shadow-xl transition-all text-xl uppercase tracking-tight ${!valid ? 'opacity-50 grayscale' : 'hover:scale-[1.02] active:scale-[0.98]'} ${isShaking ? 'animate-shake' : ''}`}
+              className={`w-12 h-12 rounded-full bg-primary text-background self-center flex items-center justify-center shadow-lg transition-all ${!valid ? 'opacity-50 grayscale' : 'hover:scale-110 active:scale-95'} ${isShaking ? 'animate-shake' : ''}`}
             >
-              {editTransaction ? 'Salvar Alterações' : 'Confirmar Lançamento'}
+              <Check size={24} strokeWidth={3} />
             </button>
 
             {editTransaction && (
               <button
                 type="button"
                 onClick={handleDelete}
-                className="w-full bg-tertiary/10 text-tertiary py-4 font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-tertiary/20 transition-all border border-tertiary/10"
+                className="text-tertiary text-[9px] font-bold uppercase tracking-widest hover:underline mt-2 opacity-50 hover:opacity-100"
               >
-                <Trash2 size={18} /> Excluir Transação
+                Excluir Transação
               </button>
             )}
           </div>
