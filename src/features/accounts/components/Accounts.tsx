@@ -24,17 +24,20 @@ export function Accounts() {
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">
-      <header className="mb-10 flex justify-between items-center">
+      <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Minhas Contas</h2>
-          <p className="text-gray-400 mt-1">Gerencie seu saldo e cartões</p>
+          <h1 className="text-3xl md:text-5xl font-bold font-plus-jakarta tracking-tight mb-2">
+            Minhas Contas
+          </h1>
+          <p className="text-xl md:text-2xl font-caveat text-primary opacity-80">
+            "Sua conta é o reflexo da sua organização pessoal."
+          </p>
         </div>
         <button 
           onClick={handleAddAccount}
-          className="w-12 h-12 md:w-auto md:px-6 md:h-12 bg-primary text-background rounded-2xl md:rounded-full font-black flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(107,254,156,0.2)]"
+          className="glass-button px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:text-background hover:border-transparent transition-all shadow-xl"
         >
-          <Plus size={24} />
-          <span className="hidden md:inline">Nova Conta</span>
+          <Plus size={20} /> Nova Conta
         </button>
       </header>
 
@@ -62,7 +65,7 @@ export function Accounts() {
         </div>
       </div>
 
-      <h3 className="text-xl font-bold mb-6 tracking-wide ml-2">Contas e Cartões</h3>
+      <h2 className="text-2xl font-bold font-plus-jakarta tracking-tight mb-8 ml-2">Contas e Cartões</h2>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-12 relative z-10">
         {accounts.map(acc => {

@@ -52,24 +52,30 @@ export function Transactions() {
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">
-      <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+      <header className="mb-8 md:mb-12 flex flex-col md:flex-row md:justify-between md:items-end gap-6">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Transações</h2>
-          <div className="flex items-center gap-3 mt-1 text-gray-400">
+          <h1 className="text-3xl md:text-5xl font-bold font-plus-jakarta tracking-tight mb-2">
+            Lançamentos
+          </h1>
+          <p className="text-xl md:text-2xl font-caveat text-primary opacity-80 mb-6">
+            "Cada centavo conta uma história sobre suas prioridades."
+          </p>
+          
+          <div className="flex items-center gap-3 mt-4 text-gray-400 glass-card px-4 py-2 rounded-2xl w-fit">
             <button onClick={handlePrevMonth} className="hover:text-primary transition-colors"><ChevronLeft size={20}/></button>
-            <span className="font-medium min-w-[120px] text-center">{monthLabel} {yearLabel}</span>
+            <span className="font-bold min-w-[120px] text-center text-xs tracking-widest uppercase">{monthLabel} {yearLabel}</span>
             <button onClick={handleNextMonth} className="hover:text-primary transition-colors"><ChevronRight size={20}/></button>
           </div>
         </div>
         
-        <div className="relative">
+        <div className="relative pb-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input 
             type="text" 
             placeholder="Buscar transação..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 bg-surface-container-low border border-surface-container-high rounded-full focus:outline-none focus:border-primary transition-colors text-sm w-full md:w-64"
+            className="pl-10 pr-4 py-3 bg-surface-container-low border border-surface-container-high rounded-2xl focus:outline-none focus:border-primary transition-all text-sm w-full md:w-80 shadow-lg"
           />
         </div>
       </header>

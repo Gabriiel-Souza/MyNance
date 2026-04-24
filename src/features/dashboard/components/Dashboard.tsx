@@ -54,11 +54,16 @@ export function Dashboard() {
       <div className="hidden md:block absolute top-[5%] -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
       <div className="hidden md:block absolute bottom-[15%] -right-20 w-80 h-80 bg-secondary/5 rounded-full blur-[60px] pointer-events-none" />
       
-      <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+      <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
         <div className="flex-1">
-          <h2 className="text-3xl font-bold tracking-tight mb-4" style={{ fontFamily: 'var(--font-jakarta)' }}>Resumo Financeiro</h2>
+          <h1 className="text-3xl md:text-5xl font-bold font-plus-jakarta tracking-tight mb-2">
+            Resumo Financeiro
+          </h1>
+          <p className="text-xl md:text-2xl font-caveat text-primary opacity-80">
+            "O controle é a base da liberdade financeira."
+          </p>
           
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-8">
             <div className="flex items-center gap-3 text-gray-400 glass-card px-4 py-2 rounded-2xl">
               <button onClick={handlePrevMonth} className="hover:text-primary transition-colors"><ChevronLeft size={20}/></button>
               <span className="font-bold min-w-[120px] text-center text-xs tracking-widest uppercase">{monthLabel} {yearLabel}</span>
@@ -130,7 +135,10 @@ export function Dashboard() {
           </div>
 
           <div className="relative z-10">
-            <h3 className="text-xl font-bold mb-6 tracking-wide ml-2">Últimos Lançamentos em {monthLabel}</h3>
+            <div>
+              <h2 className="text-2xl font-bold font-plus-jakarta tracking-tight text-white">Últimos Lançamentos</h2>
+              <p className="text-sm font-caveat text-primary opacity-80 mt-1 mb-6">"Pequenos riachos formam grandes rios."</p>
+            </div>
             {currentMonthTransactions.length === 0 ? (
               <div className="glass-card py-16 text-center rounded-[2.5rem]">
                 <p className="text-gray-500 font-medium">Nenhuma transação encontrada para este período.</p>

@@ -33,9 +33,14 @@ export function Sidebar({ activePage, onNavigate, isOpen, onClose }: SidebarProp
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         
         <div className="px-8 mb-12 flex justify-between items-center">
-          <h1 className="text-4xl text-primary font-bold" style={{ fontFamily: 'var(--font-caveat)' }}>
-            MyNance
-          </h1>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(107,254,156,0.3)] border border-primary/20">
+              <img src="/logo.svg" alt="MyNance Logo" className="w-full h-full object-cover" />
+            </div>
+            <h1 className="text-3xl text-primary font-bold" style={{ fontFamily: 'var(--font-caveat)' }}>
+              MyNance
+            </h1>
+          </div>
           <button onClick={onClose} className="md:hidden p-2 text-gray-400 hover:text-white">
             <X size={24} />
           </button>

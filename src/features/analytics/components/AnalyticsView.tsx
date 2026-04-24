@@ -88,8 +88,8 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
         <div className="glass-card-high p-8 rounded-[2.5rem]">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 className="text-xl font-bold text-white">Fluxo de Caixa</h3>
-              <p className="text-xs text-gray-500 mt-1">Comparativo de entradas e saídas</p>
+              <h2 className="text-2xl font-bold font-plus-jakarta tracking-tight text-white">Fluxo de Caixa</h2>
+              <p className="text-sm font-caveat text-primary opacity-80 mt-1">Comparativo de entradas e saídas</p>
             </div>
           </div>
           <div className="h-[300px] w-full">
@@ -112,8 +112,8 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
         {/* Gráfico de Pizza Detalhado */}
         <div className="glass-card-high p-8 rounded-[2.5rem]">
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-white">Distribuição por Categoria</h3>
-            <p className="text-xs text-gray-500 mt-1">Maiores impactos no seu orçamento</p>
+            <h2 className="text-2xl font-bold font-plus-jakarta tracking-tight text-white">Distribuição por Categoria</h2>
+            <p className="text-sm font-caveat text-primary opacity-80 mt-1">Maiores impactos no seu orçamento</p>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="h-[240px] w-full md:w-1/2">

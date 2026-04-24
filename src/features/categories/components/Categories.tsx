@@ -29,11 +29,21 @@ export function Categories() {
       <div className="absolute top-[20%] right-0 w-96 h-96 bg-tertiary/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[10%] w-72 h-72 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <header className="mb-12 flex justify-between items-end relative z-10">
+      <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-jakarta)' }}>Categorias Dinâmicas</h2>
-          <p className="text-gray-400 mt-1">Gerencie suas tags, cores e ícones de categorização</p>
+          <h1 className="text-3xl md:text-5xl font-bold font-plus-jakarta tracking-tight mb-2">
+            Categorias
+          </h1>
+          <p className="text-xl md:text-2xl font-caveat text-primary opacity-80">
+            "Organizar é o primeiro passo para otimizar."
+          </p>
         </div>
+        <button 
+          onClick={handleAdd}
+          className="glass-button px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:text-background hover:border-transparent transition-all shadow-xl"
+        >
+          <Plus size={20} /> Nova Categoria
+        </button>
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
