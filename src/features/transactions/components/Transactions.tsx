@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { useFinanceStore } from '../store/useFinanceStore';
+import { useState } from 'react';
+import { useTransactions } from '../hooks/useTransactions';
 import { Wallet, Utensils, Car, ShoppingBag, CreditCard, Search, Plus, ChevronLeft, ChevronRight, ArrowUpCircle, ArrowDownCircle, Landmark } from 'lucide-react';
 import { TransactionModal } from './TransactionModal';
-import { formatCurrency } from '../utils/formatters';
-import type { Transaction } from '../types';
+import { formatCurrency } from '@/utils/formatters';
+import type { Transaction } from '@/types';
 
 const MONTHS = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -22,22 +22,23 @@ const renderIcon = (iconName: string) => {
 };
 
 export function Transactions() {
-  const { transactions, categories, accounts } = useFinanceStore();
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  const {
+    categories,
+    searchTerm,
+    setSearchTerm,
+    selectedDate,
+    handlePrevMonth,
+    handleNextMonth,
+    totalBalance,
+    monthlyResult,
+    groupedTransactions
+  } = useTransactions(new Date());
 
   const monthLabel = MONTHS[selectedDate.getMonth()];
   const yearLabel = selectedDate.getFullYear();
-
-  const handlePrevMonth = () => {
-    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-  };
-
-  const handleNextMonth = () => {
-    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-  };
 
   const handleEditTx = (tx: Transaction) => {
     setEditingTransaction(tx);
@@ -48,38 +49,6 @@ export function Transactions() {
     setEditingTransaction(null);
     setIsModalOpen(true);
   };
-
-  // Cálculos baseados em todos os tempos (Patrimônio)
-  const totalBalance = useMemo(() => {
-    return accounts.reduce((acc, account) => acc + account.balance, 0) + 
-           transactions.reduce((acc, tx) => acc + tx.amount, 0);
-  }, [accounts, transactions]);
-
-  // Filtros
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter(tx => {
-      const d = new Date(tx.date);
-      const isSameMonth = d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
-      const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            Math.abs(tx.amount).toString().includes(searchTerm);
-      return isSameMonth && matchesSearch;
-    });
-  }, [transactions, selectedDate, searchTerm]);
-
-  // Resultado Mensal (Incomes - Expenses)
-  const monthlyResult = useMemo(() => {
-    return filteredTransactions.reduce((acc, tx) => acc + tx.amount, 0);
-  }, [filteredTransactions]);
-
-  // Agrupar por data
-  const groupedTransactions = useMemo(() => {
-    return filteredTransactions.reduce((acc, tx) => {
-      const date = tx.date.split('T')[0];
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(tx);
-      return acc;
-    }, {} as Record<string, typeof transactions>);
-  }, [filteredTransactions]);
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">
@@ -139,7 +108,7 @@ export function Transactions() {
             <div key={date}>
               <h3 className="text-gray-500 text-xs font-black uppercase tracking-widest mb-4 ml-4">{new Date(date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric'})}</h3>
               <div className="bg-surface-variant/20 backdrop-blur-md rounded-[2.5rem] overflow-hidden p-2 border border-white/5 shadow-xl">
-                {txs.map((tx, index) => {
+                {txs.map((tx) => {
                   const category = categories.find(c => c.id === tx.categoryId);
                   return (
                     <div 

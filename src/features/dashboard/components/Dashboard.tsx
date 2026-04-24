@@ -1,10 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { Utensils, Car, ShoppingBag, CreditCard, Wallet, ArrowUpRight, ArrowDownRight, Plus, ChevronLeft, ChevronRight, Landmark, LayoutDashboard, BarChart3 } from 'lucide-react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import { TransactionModal } from './TransactionModal';
-import { AnalyticsView } from './AnalyticsView';
-import { formatCurrency } from '../utils/formatters';
+import { useState } from 'react';
+import { Utensils, Car, ShoppingBag, CreditCard, Wallet, Plus, ChevronLeft, ChevronRight, Landmark, LayoutDashboard, BarChart3 } from 'lucide-react';
+import { useDashboardStats } from '../hooks/useDashboardStats';
+import { TransactionModal } from '@/features/transactions/components/TransactionModal';
+import { AnalyticsView } from '@/features/analytics/components/AnalyticsView';
+import { formatCurrency } from '@/utils/formatters';
 
 const renderIcon = (iconName: string) => {
   switch (iconName) {
@@ -23,10 +22,20 @@ const MONTHS = [
 ];
 
 export function Dashboard() {
-  const { transactions, categories, accounts } = useFinanceStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState<'SUMMARY' | 'ANALYTICS'>('SUMMARY');
+
+  const {
+    categories,
+    accounts,
+    currentMonthTransactions,
+    totalBalance,
+    monthExpenses,
+    monthRevenue,
+    openFaturas,
+    getAccountBalance
+  } = useDashboardStats(selectedDate);
 
   const monthLabel = MONTHS[selectedDate.getMonth()];
   const yearLabel = selectedDate.getFullYear();
@@ -38,43 +47,6 @@ export function Dashboard() {
   const handleNextMonth = () => {
     setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
-
-  // Helper para saldo da conta
-  const getAccountBalance = (accountId: string) => {
-    const account = accounts.find(a => a.id === accountId);
-    if (!account) return 0;
-    const txSum = transactions.reduce((acc, tx) => {
-      if (tx.accountId === accountId) return acc + tx.amount;
-      if (tx.type === 'TRANSFER' && tx.destinationAccountId === accountId) return acc + Math.abs(tx.amount);
-      return acc;
-    }, 0);
-    return account.balance + txSum;
-  };
-
-  // Cálculos Baseados no Período
-  const currentMonthTransactions = useMemo(() => {
-    return transactions.filter(t => {
-      const d = new Date(t.date);
-      return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
-    });
-  }, [transactions, selectedDate]);
-
-  const totalBalance = useMemo(() => {
-    return accounts.reduce((acc, account) => acc + account.balance, 0) + 
-           transactions.reduce((acc, tx) => acc + tx.amount, 0);
-  }, [accounts, transactions]);
-
-  const monthExpenses = useMemo(() => {
-    return currentMonthTransactions.filter(t => t.type === 'OUT').reduce((acc, tx) => acc + Math.abs(tx.amount), 0);
-  }, [currentMonthTransactions]);
-
-  const monthRevenue = useMemo(() => {
-    return currentMonthTransactions.filter(t => t.type === 'IN').reduce((acc, tx) => acc + tx.amount, 0);
-  }, [currentMonthTransactions]);
-
-  const openFaturas = useMemo(() => {
-    return accounts.filter(a => a.type === 'CREDIT').reduce((acc, a) => acc + Math.abs(getAccountBalance(a.id)), 0);
-  }, [accounts, transactions]);
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white relative overflow-hidden">

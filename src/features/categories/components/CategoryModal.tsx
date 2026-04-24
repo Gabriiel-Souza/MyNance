@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Check, Utensils, Car, ShoppingBag, CreditCard, Wallet, Heart, Gamepad2, Home, Zap, Coffee } from 'lucide-react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import type { Category } from '../types';
+import { useFinanceStore } from '@/store/useFinanceStore';
+import type { Category } from '@/types';
 
 interface ModalProps {
   isOpen: boolean;

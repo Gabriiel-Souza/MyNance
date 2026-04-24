@@ -1,69 +1,25 @@
-import React, { useMemo } from 'react';
+
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, 
   BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
-import { useFinanceStore } from '../store/useFinanceStore';
-import { formatCurrency } from '../utils/formatters';
-import { TrendingUp, TrendingDown, Activity, ChevronRight, Calculator } from 'lucide-react';
+import { useAnalytics } from '../hooks/useAnalytics';
+import { formatCurrency } from '@/utils/formatters';
+import { TrendingUp, TrendingDown, Activity, Calculator } from 'lucide-react';
 
 interface AnalyticsViewProps {
   selectedDate: Date;
 }
 
 export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
-  const transactions = useFinanceStore(state => state.transactions);
-  const categories = useFinanceStore(state => state.categories);
-
-  const currentMonth = selectedDate?.getMonth() ?? new Date().getMonth();
-  const currentYear = selectedDate?.getFullYear() ?? new Date().getFullYear();
-
-  const currentMonthTransactions = useMemo(() => {
-    return transactions.filter(t => {
-      const d = new Date(t.date);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
-  }, [transactions, currentMonth, currentYear]);
-
-  // Dados para Gráfico de Pizza (Categorias)
-  const categoryData = useMemo(() => {
-    const data = categories.map(cat => ({
-      name: cat.label,
-      value: currentMonthTransactions
-        .filter(t => t.categoryId === cat.id && t.type === 'OUT')
-        .reduce((sum, t) => sum + Math.abs(t.amount), 0),
-      color: cat.color
-    })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
-    return data;
-  }, [categories, currentMonthTransactions]);
-
-  // Dados para Gráfico de Barras (Últimos 6 meses)
-  const last6MonthsData = useMemo(() => {
-    const data = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(currentYear, currentMonth - i, 1);
-      const m = d.getMonth();
-      const y = d.getFullYear();
-      
-      const monthTxs = transactions.filter(t => {
-        const td = new Date(t.date);
-        return td.getMonth() === m && td.getFullYear() === y;
-      });
-
-      data.push({
-        name: d.toLocaleDateString('pt-BR', { month: 'short' }),
-        entradas: monthTxs.filter(t => t.type === 'IN').reduce((s, t) => s + t.amount, 0),
-        saidas: monthTxs.filter(t => t.type === 'OUT').reduce((s, t) => s + Math.abs(t.amount), 0),
-      });
-    }
-    return data;
-  }, [transactions, currentMonth, currentYear]);
-
-  const totalIn = currentMonthTransactions.filter(t => t.type === 'IN').reduce((s, t) => s + t.amount, 0);
-  const totalOut = currentMonthTransactions.filter(t => t.type === 'OUT').reduce((s, t) => s + Math.abs(t.amount), 0);
-  const savings = totalIn - totalOut;
-  const savingsRate = totalIn > 0 ? (savings / totalIn) * 100 : 0;
-  const dailyAverage = totalOut / 30;
+  const {
+    transactions,
+    categoryData,
+    last6MonthsData,
+    savings,
+    savingsRate,
+    dailyAverage
+  } = useAnalytics(selectedDate);
 
   if (transactions.length === 0) {
     return (
@@ -179,7 +135,7 @@ export function AnalyticsView({ selectedDate }: AnalyticsViewProps) {
                   </Pie>
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#1a1a19', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', fontSize: '12px' }}
-                    formatter={(val: number) => formatCurrency(val)}
+                    formatter={(val: any) => formatCurrency(val as number)}
                   />
                 </PieChart>
               </ResponsiveContainer>

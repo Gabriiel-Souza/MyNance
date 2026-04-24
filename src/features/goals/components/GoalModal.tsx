@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Check, Target, DollarSign, Calendar, Tag } from 'lucide-react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import type { Goal } from '../types';
+import { useFinanceStore } from '@/store/useFinanceStore';
+import type { Goal } from '@/types';
 
 interface ModalProps {
   isOpen: boolean;

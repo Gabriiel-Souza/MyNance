@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useFinanceStore } from '../store/useFinanceStore';
+import { useFinanceStore } from '@/store/useFinanceStore';
 import { Plus, Edit2, Trash2, Utensils, Car, ShoppingBag, CreditCard, Wallet, Heart, Gamepad2, Home, Zap, Coffee } from 'lucide-react';
 import { CategoryModal } from './CategoryModal';
-import type { Category } from '../types';
+import type { Category } from '@/types';
 
 const ICONS_MAP: Record<string, any> = {
   Utensils, Car, ShoppingBag, CreditCard, Wallet, Heart, Gamepad2, Home, Zap, Coffee

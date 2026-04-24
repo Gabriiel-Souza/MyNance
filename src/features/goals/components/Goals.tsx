@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Target, TrendingUp, Calendar, Plus, ChevronRight, Zap } from 'lucide-react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import { formatCurrency } from '../utils/formatters';
+import { useFinanceStore } from '@/store/useFinanceStore';
+import { formatCurrency } from '@/utils/formatters';
 import { GoalModal } from './GoalModal';
-import type { Goal } from '../types';
+import type { Goal } from '@/types';
 
 export const Goals: React.FC = () => {
   const { goals } = useFinanceStore();

@@ -1,34 +1,14 @@
 import { useState } from 'react';
-import { useFinanceStore } from '../store/useFinanceStore';
+import { useAccounts } from '../hooks/useAccounts';
 import { Wallet, CreditCard, Landmark, Plus } from 'lucide-react';
 import { AccountModal } from './AccountModal';
-import { formatCurrency } from '../utils/formatters';
-import type { Account } from '../types';
+import { formatCurrency } from '@/utils/formatters';
+import type { Account } from '@/types';
 
 export function Accounts() {
-  const { accounts, transactions } = useFinanceStore();
+  const { accounts, getAccountBalance, totalBalance, totalLimitAvailable } = useAccounts();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-
-  const getAccountBalance = (accountId: string) => {
-    const account = accounts.find(a => a.id === accountId);
-    if (!account) return 0;
-    
-    // Calcula o saldo somando as transações à conta base
-    const txSum = transactions.reduce((acc, tx) => {
-      // Se a conta for a de origem
-      if (tx.accountId === accountId) {
-        return acc + tx.amount;
-      }
-      // Se for uma transferência e for a conta de destino
-      if (tx.type === 'TRANSFER' && tx.destinationAccountId === accountId) {
-        return acc + Math.abs(tx.amount);
-      }
-      return acc;
-    }, 0);
-
-    return account.balance + txSum;
-  };
 
   const handleEditAccount = (acc: Account) => {
     setSelectedAccount(acc);
@@ -40,10 +20,7 @@ export function Accounts() {
     setIsModalOpen(true);
   };
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + getAccountBalance(acc.id), 0);
-  const totalLimitAvailable = accounts
-    .filter(a => a.type === 'CREDIT' && a.limit)
-    .reduce((sum, acc) => sum + (acc.limit || 0) + getAccountBalance(acc.id), 0);
+
 
   return (
     <div className="flex-1 p-4 md:p-8 min-h-screen bg-background text-white">

@@ -12,8 +12,8 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import type { Transaction, TransactionType } from '../types';
+import { useFinanceStore } from '@/store/useFinanceStore';
+import type { Transaction, TransactionType, Account, Category } from '@/types';
 
 interface ModalProps {
   isOpen: boolean;
@@ -178,7 +178,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   };
 
   const getAccountIcon = (id: string) => {
-    const acc = (accounts || []).find(a => a.id === id);
+    const acc = (accounts || []).find((a: Account) => a.id === id);
     return renderAccountIcon(acc);
   };
 
@@ -231,9 +231,9 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
   };
 
   const valid = isFormValid();
-  const selectedAccount = (accounts || []).find(a => a.id === accountId);
-  const selectedDestAccount = (accounts || []).find(a => a.id === destinationAccountId);
-  const selectedCategory = (categories || []).find(c => c.id === categoryId);
+  const selectedAccount = (accounts || []).find((a: Account) => a.id === accountId);
+  const selectedDestAccount = (accounts || []).find((a: Account) => a.id === destinationAccountId);
+  const selectedCategory = (categories || []).find((c: Category) => c.id === categoryId);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
@@ -362,7 +362,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     
                     {isAccountOpen && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
-                        {(accounts || []).map(acc => (
+                        {(accounts || []).map((acc: Account) => (
                           <button
                             key={acc.id}
                             type="button"
@@ -399,7 +399,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     
                     {isAccountOpen && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
-                        {(accounts || []).map(acc => (
+                        {(accounts || []).map((acc: Account) => (
                           <button
                             key={acc.id}
                             type="button"
@@ -438,7 +438,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     
                     {isDestAccountOpen && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
-                        {(accounts || []).filter(acc => acc.id !== accountId).map(acc => (
+                        {(accounts || []).filter((acc: Account) => acc.id !== accountId).map((acc: Account) => (
                           <button
                             key={acc.id}
                             type="button"
@@ -475,7 +475,7 @@ export function TransactionModal({ isOpen, onClose, editTransaction }: ModalProp
                     
                     {isCategoryOpen && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-[#20201f] border border-white/10 rounded-xl shadow-xl z-[70] overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
-                        {(categories || []).map(cat => (
+                        {(categories || []).map((cat: Category) => (
                           <button
                             key={cat.id}
                             type="button"

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Check, Wallet, CreditCard, Landmark, DollarSign } from 'lucide-react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import type { Account, AccountType } from '../types';
+import { X, Check, CreditCard, Landmark, DollarSign } from 'lucide-react';
+import { useAccounts } from '../hooks/useAccounts';
+import type { Account, AccountType } from '@/types';
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ const ACCOUNT_TYPES: { label: string; value: AccountType; icon: any }[] = [
 ];
 
 export function AccountModal({ isOpen, onClose, editAccount }: ModalProps) {
-  const { addAccount, updateAccount } = useFinanceStore();
+  const { addAccount, updateAccount } = useAccounts();
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('DEBIT');
   const [color, setColor] = useState(PRESET_COLORS[0]);

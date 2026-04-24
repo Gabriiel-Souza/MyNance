@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Sidebar } from './components/Sidebar'
-import { Dashboard } from './components/Dashboard'
-import { Transactions } from './components/Transactions'
-import { Accounts } from './components/Accounts'
-import { Categories } from './components/Categories'
-import { Goals } from './components/Goals'
+import { Sidebar } from './shared/components/Sidebar'
+import { Dashboard } from './features/dashboard/components/Dashboard'
+import { Transactions } from './features/transactions/components/Transactions'
+import { Accounts } from './features/accounts/components/Accounts'
+import { Categories } from './features/categories/components/Categories'
+import { Goals } from './features/goals/components/Goals'
 import { Menu } from 'lucide-react'
 
 function App() {
