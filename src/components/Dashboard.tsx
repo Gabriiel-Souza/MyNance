@@ -210,8 +210,3 @@ export function Dashboard() {
     </div>
   );
 }
-
-      <TransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </div>
-  );
-}
