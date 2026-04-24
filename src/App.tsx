@@ -22,7 +22,7 @@ function App() {
           <Menu size={24} />
         </button>
         <div className="flex items-center gap-2">
-          <img src="/logo.svg" alt="Logo" className="w-8 h-8 rounded-lg shadow-neon" />
+          <img src="logo.svg" alt="Logo" className="w-8 h-8 rounded-lg shadow-neon" />
           <span className="font-bold text-xl text-primary" style={{ fontFamily: 'var(--font-caveat)' }}>MyNance</span>
         </div>
       </header>

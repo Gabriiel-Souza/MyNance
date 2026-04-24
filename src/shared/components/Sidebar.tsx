@@ -35,7 +35,7 @@ export function Sidebar({ activePage, onNavigate, isOpen, onClose }: SidebarProp
         <div className="px-8 mb-12 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(107,254,156,0.3)] border border-primary/20">
-              <img src="/logo.svg" alt="MyNance Logo" className="w-full h-full object-cover" />
+              <img src="logo.svg" alt="MyNance Logo" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-3xl text-primary font-bold" style={{ fontFamily: 'var(--font-caveat)' }}>
               MyNance
